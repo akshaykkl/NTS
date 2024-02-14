@@ -1,4 +1,4 @@
-
+'''
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
@@ -13,3 +13,4 @@ def create_user_profile_based_on_group(sender, instance, action, pk_set, **kwarg
                 Student.objects.get_or_create(user=instance)
             elif group.name == "Teacher":
                 Teacher.objects.get_or_create(user=instance)
+'''

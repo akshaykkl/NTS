@@ -13,11 +13,11 @@ class TeacherAdmin(admin.ModelAdmin):
 
 admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Department)
+admin.site.register(Programme)
 
-'''class StudentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'adm_no', 'name', 'year_of_admission', 'pgm', 'current_sem', 'status')
-    search_fields = ('name', 'adm_no', 'name', 'pgm' )  
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'admn_no', 'name', 'year_of_admission', 'pgm', 'current_sem', 'status')
+    search_fields = ('name', 'admn_no', 'name', 'pgm' )  
     list_filter = ('pgm', 'gender')
 
 admin.site.register(Student, StudentAdmin)
-'''
