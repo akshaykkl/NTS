@@ -16,12 +16,15 @@ class Programme(models.Model):
         return self.pgm_name
 
 class Student(models.Model):
+    gender_choices = [('Male','male'),
+                     ('Female', 'female'),
+                     ('Other', 'other')]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
-    admn_no = models.IntegerField()
+    admn_no = models.IntegerField(unique=True)
     name = models.CharField(max_length=30)
+    gender = models.CharField(max_length=10, choices=gender_choices, default='Male')
     year_of_admission = models.IntegerField()
-    pgm_id = models.ForeignKey(Programme, on_delete=models.CASCADE, default=1)
-    admission_no = models.IntegerField()
+    pgm = models.ForeignKey(Programme, on_delete=models.CASCADE, default=1)
     current_sem = models.IntegerField()
     status = models.TextField()
     def __str__(self):
@@ -29,10 +32,10 @@ class Student(models.Model):
 
 class Teacher(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
-    teacher_id = models.IntegerField()
+    teacher_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=50)
     designation = models.CharField(max_length=20)
-    dept_id = models.ForeignKey(Department, on_delete=models.CASCADE, default=1)
-    hod = models.BooleanField()
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE, default=1)
+    hod = models.BooleanField(default=False)
     def  __str__(self):
-        return self.name + self.department.dept_name
+        return f"{self.name}"
