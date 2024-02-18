@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
-        /* CSS for navigation bar */
         .navbar {
             background-color: #333;
             overflow: hidden;
@@ -32,17 +31,28 @@
     </style>
 </head>
 <body>
-
+<center><h1>NTS</h1></center>
 <div class="navbar">
-    <a href="{% url 'home' %}">Profile</a>
     <a href="{% url 'logout' %}" class="right">Logout</a>
-</div>
+    <a href="{% url 'home' %}" class="right">Profile</a>
+    {% if principal %}
+    <a href="{% url 'feed' %}">Feed</a>
+    <a href="{% url 'media_upload' %}">Upload</a>
+    <a href="{% url 'teacher_view' %}">View</a>
+    {% elif teacher %}
+    <a href="{% url 'feed' %}">Feed</a>
+    <a href="{% url 'media_upload' %}">Upload</a>
+    <a href="{% url 'teacher_view' %}">View</a>
+    {% elif  student %}
+    <a href="{% url 'feed' %}">Feed</a>
+    {% endif %}
+    
+    </div>
 
 <!-- Your dashboard content here -->
 <!-- Example: -->
 <div>
-    <h1>Welcome to the Dashboard!</h1>
-    <!-- Add more content as needed -->
+    {% block content %}{% endblock  %}
 </div>
 
 </body>
