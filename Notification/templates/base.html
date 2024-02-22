@@ -35,18 +35,14 @@
 <div class="navbar">
     <a href="{% url 'logout' %}" class="right">Logout</a>
     <a href="{% url 'home' %}" class="right">Profile</a>
-    {% if principal %}
     <a href="{% url 'feed' %}">Feed</a>
+    {% if principal %}
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
     {% elif teacher %}
-    <a href="{% url 'feed' %}">Feed</a>
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
-    {% elif  student %}
-    <a href="{% url 'feed' %}">Feed</a>
     {% endif %}
-    
     </div>
 
 <!-- Your dashboard content here -->

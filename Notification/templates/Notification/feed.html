@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Uploaded By</th>
+        <th>Uploaded At</th>
+        <th>File</th>
+    </tr>
+    {% for item in medias %}
+    <tr>
+        <td>{{item.title}}</td>
+        <td>{{item.description}}</td>
+        <td>{{item.media_type}}</td>
+        <td>{{item.uploaded_by}}</td>
+        <td>{{item.uploaded_at}}</td>
+        <td>
+            {% if item.file %}
+                <a href="{{ item.file.url }}" target="_blank">View File</a>
+            {% else %}
+                No File Uploaded
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock  %}

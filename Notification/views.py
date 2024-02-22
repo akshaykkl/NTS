@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from .models import *
-from . forms import *
+from .forms import *
 
 @login_required
 def home(request):
@@ -24,9 +24,10 @@ def home(request):
         else:
             return HttpResponse("You are not meant to access this page")
             
-
+@login_required
 def media_upload(request):
     form = MediaForm()
+    current_user = request.user
     if request.method == 'POST':
         form = MediaForm(request.POST,request.FILES)
         if form.is_valid():
@@ -35,12 +36,22 @@ def media_upload(request):
             media.save()
         else:
             form = MediaForm()
-    return  render(request, 'Notification/media_upload.html', {'form' : form})
+    teacher = Teacher.objects.filter(user=current_user)
+    teacher = teacher.first()
+    if teacher.designation == 'principal':
+        context = {
+            'form':form,
+            'principal':1
+        }
+        return  render(request, 'Notification/media_upload.html', context)
+    else:
+        context = {
+            'form':form,
+            'teacher':1
+        }
+        return  render(request, 'Notification/media_upload.html', context)
 
-def view(request):
-    medias = Media.objects.all().order_by('uploaded_at') 
-    return render(request,'Notification/view.html',{'medias':medias})
-
+@login_required
 def teacher_view(request):
     current_user = request.user
     if current_user.is_authenticated:
@@ -49,19 +60,36 @@ def teacher_view(request):
             teacher = teacher.first()
             if teacher.designation == "principal":
                 medias = Media.objects.all().order_by('uploaded_at')
-                return render(request,'Notification/view.html',{'medias':medias})
+                context = {
+                    'medias':medias,
+                    'principal':1
+                }
+                return render(request,'Notification/view.html',context)
             else:
                 medias = Media.objects.filter(uploaded_by=current_user).order_by('-uploaded_at')
-                return render(request,'Notification/view.html',{'medias':medias})
-            
+                context = {
+                    'medias':medias,
+                    'teacher':1
+                }
+                return render(request,'Notification/view.html',context)
+
+@login_required        
 def feed(request):
     current_user = request.user
     teacher = Teacher.objects.filter(user=current_user)
-    if teacher.exists:
+    if teacher.exists():
         medias = Media.objects.filter(teacher=True).order_by(F('uploaded_at').desc())[:20]
-        return render(request,'Notification/view.html',{'medias':medias})
+        context = {
+            'medias':medias,
+            'teacher':1,
+            'principal':1
+        }
+        return render(request,'Notification/feed.html',context)
     else:
         medias = Media.objects.filter(student=True).order_by(F('uploaded_at').desc())[:20]
-        return render(request,'Notification/view.html',{'medias':medias})
+        context = {
+            'medais':medias,
+        }
+        return render(request,'Notification/feed.html',context)
         
     
