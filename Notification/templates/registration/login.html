@@ -1,6 +1,32 @@
-<title>Login</title>
-<form action="{% url "login" %}" method="post">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">Submit</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    
+</head>
+<body>
+
+    <div class="container">
+        <form action="{% url "login" %}" method="post">
+            {% csrf_token %}
+            <center><h2>NTS Login</h2></center>
+            <div class="fieldWrapper">
+                {{ form.username.errors }}
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
+            </div>
+            <div class="fieldWrapper">
+                {{ form.password.errors }}
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }}
+            </div>
+            <button type="submit">Login</button>
+            <div class="error">{{ form.non_field_errors }}</div>
+        </form>
+    </div>
+</body>
+</html>

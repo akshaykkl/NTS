@@ -86,9 +86,12 @@ def feed(request):
         }
         return render(request,'Notification/feed.html',context)
     else:
-        medias = Media.objects.filter(student=True).order_by(F('uploaded_at').desc())[:20]
+        student = Student.objects.filter(user=current_user).first()
+        programme = student.pgm
+        print(programme)
+        medias = Media.objects.filter(student=True,pgm=programme).order_by(F('uploaded_at').desc())[:20]
         context = {
-            'medais':medias,
+            'medias':medias,
         }
         return render(request,'Notification/feed.html',context)
         
