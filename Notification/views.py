@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
@@ -9,6 +9,8 @@ from .forms import *
 def home(request):
     current_user = request.user
     if current_user.is_authenticated:
+        '''if current_user.is_superuser:
+            return redirect("admin")'''
         teacher = Teacher.objects.filter(user=current_user)
         if teacher.exists():
             teacher = teacher.first()

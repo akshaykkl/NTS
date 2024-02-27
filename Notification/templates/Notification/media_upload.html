@@ -1,8 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    {% block title %}
+        <title>Upload</title>
+    {% endblock %}
+    {% block link %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+        <link rel="stylesheet" href="{% static 'css/media_upload.css' %}">
+    {% endblock %}
+  </head>
+  <body>
 {% block content %}
-<form action="{% url "media_upload" %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">Submit</button>
-</form>
-{% endblock  %}
+    <div class="upload-container">
+        <form action="{% url "media_upload" %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    {% endblock  %}  
+    </body>
+</html>
