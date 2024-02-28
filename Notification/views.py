@@ -2,8 +2,14 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetView
+from django.conf import settings
 from .models import *
 from .forms import *
+from .utils import *
 
 @login_required
 def home(request):
@@ -98,3 +104,76 @@ def feed(request):
         return render(request,'Notification/feed.html',context)
         
     
+@login_required
+def profile(request):
+    current_user = request.user
+    context = {"user": current_user}
+    
+    try:
+        teacher = Teacher.objects.get(user=current_user)
+        context.update({"teacher": 1, "teacher_details": teacher})
+    except Teacher.DoesNotExist:
+        pass
+    
+    try:
+        student = Student.objects.get(user=current_user)
+        context.update({"student": 1, "student_details": student})
+    except Student.DoesNotExist:
+        pass
+    
+    return render(request, "Notification/profile.html", context)
+
+def change_password(request):
+    current_user = request.user
+    context = {"user": current_user}
+    
+    try:
+        teacher = Teacher.objects.get(user=current_user)
+        context.update({"teacher": 1, "teacher_details": teacher})
+    except Teacher.DoesNotExist:
+        pass
+    
+    try:
+        student = Student.objects.get(user=current_user)
+        context.update({"student": 1, "student_details": student})
+    except Student.DoesNotExist:
+        pass
+    if request.method == 'POST':
+        form = PasswordChangeForm(current_user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, current_user)  # Keep the user logged in
+            return redirect('profile')
+    else:
+        form = PasswordChangeForm(current_user)
+        context.update({'form':form})
+    return render(request, 'Notification/change_password.html', context)
+
+
+
+
+def password_reset(request, *args, **kwargs):
+    current_user = request.user
+    context = {"user": current_user}
+    
+    try:
+        teacher = Teacher.objects.get(user=current_user)
+        context.update({"teacher": 1, "teacher_details": teacher})
+    except Teacher.DoesNotExist:
+        pass
+    
+    try:
+        student = Student.objects.get(user=current_user)
+        context.update({"student": 1, "student_details": student})
+    except Student.DoesNotExist:
+        pass
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            if send_password_reset_email(request, email):
+                return render(request, 'Notification/password_reset_done.html')
+    else:
+        form = PasswordResetForm()
+        context.update({'form':form})
+    return render(request, 'Notification/password_reset.html', context)
