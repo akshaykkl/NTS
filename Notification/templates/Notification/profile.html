@@ -6,13 +6,13 @@
 
 {% block content %}
 <div class="profile_container">
-    {% if teacher %}
+    {% if is_teacher %}
     <ul>
         <li>Name:{{teacher_details.name}}</li>
         <li>UserName:{{user.username}}</li>
     </ul>
     {% endif %}
-    {% if student %}
+    {% if is_student %}
     <ul>
         <li>Name:{{student_details.name}}</li>
         <li>UserName:{{user.username}}</li>

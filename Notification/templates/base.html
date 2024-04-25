@@ -27,7 +27,7 @@
     {% if principal %}
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
-    {% elif teacher %}
+    {% elif is_teacher %}
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
     {% endif %}
@@ -36,6 +36,7 @@
 <!-- Your dashboard content here -->
 <!-- Example: -->
 <div>
+    {{context}}
     {% block content %}{% endblock  %}
 </div>
 
