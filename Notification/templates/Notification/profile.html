@@ -1,0 +1,25 @@
+<!-- profile.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}<title>Profile</title>{% endblock %}
+
+{% block content %}
+<div class="profile_container">
+    {% if is_teacher %}
+    <ul>
+        <li>Name:{{teacher_details.name}}</li>
+        <li>UserName:{{user.username}}</li>
+    </ul>
+    {% endif %}
+    {% if is_student %}
+    <ul>
+        <li>Name:{{student_details.name}}</li>
+        <li>UserName:{{user.username}}</li>
+    </ul>
+    {% endif %}
+</div>
+<div>
+    <a href="{% url "change_password" %}">Change Password</a>
+</div>
+{% endblock %}

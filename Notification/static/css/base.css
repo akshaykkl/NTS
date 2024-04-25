@@ -18,6 +18,18 @@ body {
     font-family: Arial, sans-serif;
     font-size: 16px;
 }
+.logout-div {
+    display: flex;
+    justify-content: flex-end !important;
+    float: right !important;
+}
+.logout-div button[type="submit"]{
+    float: right;
+}
+
+#brand{
+    text-align: center;
+}
 
 /* Center-align text */
 .center {

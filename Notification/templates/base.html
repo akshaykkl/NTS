@@ -14,15 +14,20 @@
 
     </head>
 <body>
-<center><h1>NTS</h1></center>
+<h1 id="brand">NTS</h1>
+<div class="logout-div">
+    <form action="{% url "logout" %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+</div>
 <div class="navbar">
-    <a href="{% url 'logout' %}" class="right">Logout</a>
-    <a href="{% url 'home' %}" class="right">Profile</a>
+    <a href="{% url 'profile' %}" class="right">Profile</a>
     <a href="{% url 'feed' %}">Feed</a>
     {% if principal %}
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
-    {% elif teacher %}
+    {% elif is_teacher %}
     <a href="{% url 'media_upload' %}">Upload</a>
     <a href="{% url 'teacher_view' %}">View</a>
     {% endif %}
@@ -31,6 +36,7 @@
 <!-- Your dashboard content here -->
 <!-- Example: -->
 <div>
+    {{context}}
     {% block content %}{% endblock  %}
 </div>
 
