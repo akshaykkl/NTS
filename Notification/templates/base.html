@@ -4,41 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block  title %}
+    {% block title %}
         <title>Dashboard</title>
     {% endblock %}
     {% block link %}
         <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
-    {% endblock  %}
-    
-
-    </head>
+    {% endblock %}
+</head>
 <body>
-<h1 id="brand">NTS</h1>
-<div class="logout-div">
-    <form action="{% url "logout" %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-</div>
-<div class="navbar">
-    <a href="{% url 'profile' %}" class="right">Profile</a>
-    <a href="{% url 'feed' %}">Feed</a>
-    {% if principal %}
-    <a href="{% url 'media_upload' %}">Upload</a>
-    <a href="{% url 'teacher_view' %}">View</a>
-    {% elif is_teacher %}
-    <a href="{% url 'media_upload' %}">Upload</a>
-    <a href="{% url 'teacher_view' %}">View</a>
-    {% endif %}
-    </div>
+    <header>
+        <h1 id="brand">NTS</h1>
+        <div class="logout-div">
+            <form action="{% url 'logout' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+        <nav class="navbar">
+            <a href="{% url 'profile' %}" class="right">Profile</a>
+            <a href="{% url 'feed' %}">Feed</a>
+            {% if principal %}
+                <a href="{% url 'media_upload' %}">Upload</a>
+                <a href="{% url 'teacher_view' %}">View</a>
+            {% elif is_teacher %}
+                <a href="{% url 'media_upload' %}">Upload</a>
+                <a href="{% url 'teacher_view' %}">View</a>
+            {% endif %}
+        </nav>
+    </header>
 
-<!-- Your dashboard content here -->
-<!-- Example: -->
-<div>
-    {{context}}
-    {% block content %}{% endblock  %}
-</div>
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
 
+    <footer>
+        <p>&copy; 2024 NTS. All rights reserved.</p>
+    </footer>
 </body>
 </html>
