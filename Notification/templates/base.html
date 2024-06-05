@@ -1,4 +1,5 @@
 {% load static %}
+{% comment %} base.html {% endcomment %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,33 +13,35 @@
     {% endblock %}
 </head>
 <body>
-    <header>
-        <h1 id="brand">NTS</h1>
-        <div class="logout-div">
-            <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        </div>
-        <nav class="navbar">
-            <a href="{% url 'profile' %}" class="right">Profile</a>
-            <a href="{% url 'feed' %}">Feed</a>
-            {% if principal %}
-                <a href="{% url 'media_upload' %}">Upload</a>
-                <a href="{% url 'teacher_view' %}">View</a>
-            {% elif is_teacher %}
-                <a href="{% url 'media_upload' %}">Upload</a>
-                <a href="{% url 'teacher_view' %}">View</a>
-            {% endif %}
-        </nav>
-    </header>
+    <div class="wrapper">
+        <header class="header">
+            <h1 id="brand">NTS</h1>
+            <div class="logout-div">
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
+            <nav class="navbar">
+                <a href="{% url 'profile' %}" class="right">Profile</a>
+                <a href="{% url 'feed' %}">Feed</a>
+                {% if principal %}
+                    <a href="{% url 'media_upload' %}">Upload</a>
+                    <a href="{% url 'teacher_view' %}">View</a>
+                {% elif is_teacher %}
+                    <a href="{% url 'media_upload' %}">Upload</a>
+                    <a href="{% url 'teacher_view' %}">View</a>
+                {% endif %}
+            </nav>
+        </header>
 
-    <main class="container">
-        {% block content %}
-        {% endblock %}
-    </main>
+        <main class="container">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
 
-    <footer>
+    <footer class="footer">
         <p>&copy; 2024 NTS. All rights reserved.</p>
     </footer>
 </body>

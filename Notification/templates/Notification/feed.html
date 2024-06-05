@@ -1,29 +1,27 @@
 {% extends "base.html" %}
+{% comment %} feed.html {% endcomment %}
+
 {% block content %}
-<table>
-    <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Uploaded By</th>
-        <th>Uploaded At</th>
-        <th>File</th>
-    </tr>
+<div class="feed-container">
     {% for item in medias %}
-    <tr>
-        <td>{{item.title}}</td>
-        <td>{{item.description}}</td>
-        <td>{{item.media_type}}</td>
-        <td>{{item.uploaded_by}}</td>
-        <td>{{item.uploaded_at}}</td>
-        <td>
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ item.title }}</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Description:</strong> {{ item.description }}</p>
+            <p><strong>Type:</strong> {{ item.media_type }}</p>
+            <p><strong>Uploaded By:</strong> {{ item.uploaded_by }}</p>
+            <p><strong>Uploaded At:</strong> {{ item.uploaded_at }}</p>
+        </div>
+        <div class="card-footer">
             {% if item.file %}
-                <a href="{{ item.file.url }}" target="_blank">View File</a>
+                <a href="{{ item.file.url }}" class="btn" target="_blank">View File</a>
             {% else %}
-                No File Uploaded
+                <span>No File Uploaded</span>
             {% endif %}
-        </td>
-    </tr>
+        </div>
+    </div>
     {% endfor %}
-</table>
-{% endblock  %}
+</div>
+{% endblock %}
