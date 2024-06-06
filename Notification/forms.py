@@ -6,3 +6,8 @@ class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
         fields = ['title', 'description', 'media_type', 'file','student','teacher', 'pgm']
+
+class MediaEditForm(forms.ModelForm):
+    class Meta:
+        model = Media
+        exclude = ['uploaded_by', 'uploaded_at']

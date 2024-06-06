@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordResetForm
@@ -79,7 +80,7 @@ def feed(request, context):
         context.update({'medias':medias})
         return render(request,'Notification/feed.html',context)
     else:
-        student = Student.objects.filter(user=current_user)
+        student = Student.objects.get(user=current_user)
         programme = student.pgm
         print(programme)
         medias = Media.objects.filter(student=True,pgm=programme).order_by(F('uploaded_at').desc())[:20]
@@ -162,3 +163,37 @@ def password_reset(request, context, *args, **kwargs):
         form = PasswordResetForm()
         context.update({'form':form})
     return render(request, 'Notification/password_reset.html', context)
+
+@login_required
+@add_user_context
+def edit_media(request, context, media_id):
+    media = Media.objects.get(id=media_id)
+    form = MediaEditForm(instance=media)
+    if request.method == 'POST':
+        form = MediaEditForm(request.POST, instance=media)
+        if form.is_valid():
+            media1 = form.save(commit=False)
+            media1.uploaded_by = media.uploaded_by
+            media1_uploaded_at = media.uploaded_at
+            media1.save()
+            #messages.success(request, 'Media item updated successfully!')
+            return redirect('teacher_view')
+    context.update({'form':form})
+    return render(request, 'Notification/edit_media.html',context)
+
+@login_required
+@add_user_context
+def view_media(request, context, media_id):
+    media = Media.objects.get(id=media_id)
+    context.update({'media':media})
+    return render(request, 'Notification/view_media.html', context)
+
+@login_required
+@add_user_context
+def delete_media(request, context, media_id):
+    if request.method == 'GET':
+        media = Media.objects.get(id=media_id)
+        media.delete()
+        #return redirect('teacher_view')
+    else:
+        return HttpResponse('Error Occured')

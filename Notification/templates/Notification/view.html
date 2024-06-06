@@ -1,29 +1,58 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<table>
-    <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Uploaded By</th>
-        <th>Uploaded At</th>
-        <th>File</th>
-    </tr>
-    {% for item in medias %}
-    <tr>
-        <td>{{item.title}}</td>
-        <td>{{item.description}}</td>
-        <td>{{item.media_type}}</td>
-        <td>{{item.uploaded_by}}</td>
-        <td>{{item.uploaded_at}}</td>
-        <td>
-            {% if item.file %}
-                <a href="{{ item.file.url }}" target="_blank">View File</a>
-            {% else %}
-                No File Uploaded
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
+<!-- Button to toggle edit mode -->
+<div style="text-align: right;">
+    <button id="toggle-edit-mode">Toggle Edit Mode</button>
+</div>
+
+<!-- Table to display media items -->
+<table id="media-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Uploaded By</th>
+            <th>Uploaded At</th>
+            <th>File</th>
+            <th class="action-column">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in medias %}
+        <tr>
+            <td>{{ item.title }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.media_type }}</td>
+            <td>{{ item.uploaded_by }}</td>
+            <td>{{ item.uploaded_at }}</td>
+            <td>
+                {% if item.file %}
+                    <a href="{{ item.file.url }}" target="_blank">View File</a>
+                {% else %}
+                    No File Uploaded
+                {% endif %}
+            </td>
+            <td class="action-column">
+                <a href="{% url 'view_media' item.id %}">
+                    <button>More</button>
+                   </a> /
+                <a href="{% url 'edit_media' item.id %}">
+                 <button>Edit</button>
+                </a> /
+                <a href="{% url 'delete_media' item.id %}"
+                onclick="return confirm('Are you sure you want to delete?')">
+                    <button>Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-{% endblock  %}
+{% endblock %}
+
+{% block script %}
+<!-- Include the JavaScript file -->
+<script src="{% static 'js/toggleEditMode.js' %}"></script>
+{% endblock %}

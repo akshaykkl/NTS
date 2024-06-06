@@ -8,7 +8,7 @@
     {% block title %}
         <title>Dashboard</title>
     {% endblock %}
-    {% block link %}
+    {% block style %}
         <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     {% endblock %}
 </head>
@@ -40,7 +40,9 @@
             {% endblock %}
         </main>
     </div>
+    {% block script %}
 
+{% endblock script %}
     <footer class="footer">
         <p>&copy; 2024 NTS. All rights reserved.</p>
     </footer>
