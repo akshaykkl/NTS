@@ -79,7 +79,7 @@ def feed(request, context):
         context.update({'medias':medias})
         return render(request,'Notification/feed.html',context)
     else:
-        student = Student.objects.filter(user=current_user).first()
+        student = Student.objects.filter(user=current_user)
         programme = student.pgm
         print(programme)
         medias = Media.objects.filter(student=True,pgm=programme).order_by(F('uploaded_at').desc())[:20]
@@ -128,10 +128,12 @@ def change_password(request, context):
             user = form.save()
             update_session_auth_hash(request, current_user)  # Keep the user logged in
             return redirect('profile')
+        else:
+            form = PasswordChangeForm(current_user)
+            return render(request, 'Notification/change_password.html', {'context':context,'form':form})
     else:
         form = PasswordChangeForm(current_user)
-        context.update({'form':form})
-    return render(request, 'Notification/change_password.html', context)
+    return render(request, 'Notification/change_password.html', {'context':context,'form':form})
 
 
 @login_required
