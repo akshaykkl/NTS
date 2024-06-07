@@ -56,6 +56,7 @@ def media_upload(request, context):
 @login_required
 @add_user_context
 def teacher_view(request, context):
+    form = MediaFilterForm(request.GET or None)
     current_user = request.user
     if current_user.is_authenticated:
         teacher = Teacher.objects.filter(user=current_user)
@@ -63,10 +64,22 @@ def teacher_view(request, context):
             teacher = teacher.first()
             if teacher.designation == "principal":
                 medias = Media.objects.all().order_by('uploaded_at')
-                context.update({'medias':medias})
+                if form.is_valid():
+                    title = form.cleaned_data.get('title')
+                    pgm = form.cleaned_data.get('pgm')
+                    uploaded_by = form.cleaned_data.get('uploaded_by')
+                    if title:
+                        medias = medias.filter(title__icontains=title)
+
+                    if pgm:
+                        medias = medias.filter(pgm__in=pgm)
+                    if uploaded_by:
+                        user_ids = uploaded_by.values_list('user_id', flat=True)
+                        medias = medias.filter(uploaded_by__in=user_ids)
+                context.update({'medias':medias,'form':form})
                 return render(request,'Notification/view.html',context)
             else:
-                medias = Media.objects.filter(uploaded_by=current_user).order_by('-uploaded_at')
+                medias = Media.objects.filter(uploaded_by=current_user).order_by('uploaded_at')
                 context.update({'medias':medias})
                 return render(request,'Notification/view.html',context)
 

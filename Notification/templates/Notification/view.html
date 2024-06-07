@@ -1,11 +1,37 @@
 {% extends "base.html" %}
 {% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+<style>
+    
+    .filter-form {
+        margin-bottom: 20px;
+    }
+    .filter-form input, .filter-form select, .filter-form button {
+        margin-right: 10px;
+    }
+    .media-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .media-table th, .media-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    .media-table th {
+        background-color: #f2f2f2;
+        text-align: left;
+    }
+</style>
+{% endblock style %}
 {% block content %}
 <!-- Button to toggle edit mode -->
-<div style="text-align: right;">
-    <button id="toggle-edit-mode">Toggle Edit Mode</button>
-</div>
 
+<form method="get" class="filter-form" id="filterForm">
+    {{ form.as_p }}
+    <button type="submit">Filter</button>
+    <button type="button" onclick="clearForm()">Clear</button>
+</form>
 <!-- Table to display media items -->
 <table id="media-table">
     <thead>
@@ -53,6 +79,15 @@
 {% endblock %}
 
 {% block script %}
-<!-- Include the JavaScript file -->
-<script src="{% static 'js/toggleEditMode.js' %}"></script>
+<script>
+    function clearForm() {
+        const form = document.getElementById('filterForm');
+        form.reset();
+        // Remove query parameters from URL and reload the page
+        const url = new URL(window.location);
+        url.search = '';
+        window.history.pushState({}, '', url);
+        location.reload();
+    }
+</script>
 {% endblock %}
