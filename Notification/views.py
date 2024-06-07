@@ -192,8 +192,11 @@ def view_media(request, context, media_id):
 @add_user_context
 def delete_media(request, context, media_id):
     if request.method == 'GET':
-        media = Media.objects.get(id=media_id)
-        media.delete()
-        #return redirect('teacher_view')
+        try:
+            media = Media.objects.get(id=media_id)
+            media.delete()
+        except:
+            pass
+        return redirect('teacher_view')
     else:
         return HttpResponse('Error Occured')
