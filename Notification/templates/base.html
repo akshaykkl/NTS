@@ -31,6 +31,10 @@
                 {% elif is_teacher %}
                     <a href="{% url 'media_upload' %}">Upload</a>
                     <a href="{% url 'teacher_view' %}">View</a>
+                {% elif is_superuser %}
+                    <a href="{% url 'media_upload' %}">Upload</a>
+                    <a href="{% url 'teacher_view' %}">View</a>
+                    <a href="{% url 'admin:index' %}">Admin Page</a>
                 {% endif %}
             </nav>
         </header>

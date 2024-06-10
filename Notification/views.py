@@ -31,10 +31,8 @@ def add_user_context(view_func):
 def home(request, context):
     current_user = request.user
     if current_user.is_authenticated:
-        if current_user.is_superuser:
-            return redirect("/admin/")
-        else:
-            return render(request, "base.html", context)
+        return redirect(feed)
+            
             
 @login_required
 @add_user_context
@@ -58,47 +56,66 @@ def media_upload(request, context):
 def teacher_view(request, context):
     form = MediaFilterForm(request.GET or None)
     current_user = request.user
-    if current_user.is_authenticated:
-        teacher = Teacher.objects.filter(user=current_user)
-        if teacher.exists:
-            teacher = teacher.first()
+    
+    # Check if the user is a superuser
+    if current_user.is_superuser:
+        medias = Media.objects.all().order_by('uploaded_at')
+    else:
+        # Check if the user is a teacher
+        teacher = Teacher.objects.filter(user=current_user).first()
+        if teacher:
             if teacher.designation == "principal":
                 medias = Media.objects.all().order_by('uploaded_at')
             else:
                 medias = Media.objects.filter(uploaded_by=current_user).order_by('uploaded_at')
-            if form.is_valid():
-                title = form.cleaned_data.get('title')
-                pgm = form.cleaned_data.get('pgm')
-                uploaded_by = form.cleaned_data.get('uploaded_by')
-                if title:
-                    medias = medias.filter(title__icontains=title)
+        else:
+            medias = Media.objects.none()
 
-                if pgm:
-                    medias = medias.filter(pgm__in=pgm)
-                if uploaded_by:
-                    user_ids = uploaded_by.values_list('user_id', flat=True)
-                    medias = medias.filter(uploaded_by__in=user_ids)
-            context.update({'medias':medias,'form':form})
-            return render(request,'Notification/view.html',context)
-                
+    # Apply filters from the form if it is valid
+    if form.is_valid():
+        title = form.cleaned_data.get('title')
+        pgm = form.cleaned_data.get('pgm')
+        uploaded_by = form.cleaned_data.get('uploaded_by')
+        
+        if title:
+            medias = medias.filter(title__icontains=title)
+        if pgm:
+            medias = medias.filter(pgm__in=pgm)
+        if uploaded_by:
+            user_ids = uploaded_by.values_list('user_id', flat=True)
+            medias = medias.filter(uploaded_by__in=user_ids)
 
-@login_required 
-@add_user_context       
+    context.update({'medias': medias, 'form': form})
+    return render(request, 'Notification/view.html', context)
+
+@login_required
+@add_user_context
 def feed(request, context):
     current_user = request.user
-    teacher = Teacher.objects.filter(user=current_user)
-    if teacher.exists():
+
+    # Check if the current user is a superuser
+    if current_user.is_superuser:
+        medias = Media.objects.all().order_by('uploaded_at')
+        context.update({'medias': medias})
+        return render(request, 'Notification/feed.html', context)
+
+    # Check if the current user is a teacher
+    teacher = Teacher.objects.filter(user=current_user).first()
+    if teacher:
         medias = Media.objects.filter(teacher=True).order_by(F('uploaded_at').desc())[:20]
-        context.update({'medias':medias})
-        return render(request,'Notification/feed.html',context)
-    else:
+        context.update({'medias': medias})
+        return render(request, 'Notification/feed.html', context)
+
+    # Assume the current user is a student if not a teacher
+    try:
         student = Student.objects.get(user=current_user)
         programme = student.pgm
-        print(programme)
-        medias = Media.objects.filter(student=True,pgm=programme).order_by(F('uploaded_at').desc())[:20]
-        context.update({'medias':medias})
-        
-        return render(request,'Notification/feed.html',context)
+        medias = Media.objects.filter(student=True, pgm=programme).order_by(F('uploaded_at').desc())[:20]
+        context.update({'medias': medias})
+    except Student.DoesNotExist:
+        return render(request, 'Notification/error.html')
+
+    return render(request, 'Notification/feed.html', context)
         
     
 @login_required
