@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordResetForm
@@ -30,10 +31,8 @@ def add_user_context(view_func):
 def home(request, context):
     current_user = request.user
     if current_user.is_authenticated:
-        if current_user.is_superuser:
-            return redirect("/admin/")
-        else:
-            return render(request, "base.html", context)
+        return redirect(feed)
+            
             
 @login_required
 @add_user_context
@@ -55,37 +54,68 @@ def media_upload(request, context):
 @login_required
 @add_user_context
 def teacher_view(request, context):
+    form = MediaFilterForm(request.GET or None)
     current_user = request.user
-    if current_user.is_authenticated:
-        teacher = Teacher.objects.filter(user=current_user)
-        if teacher.exists:
-            teacher = teacher.first()
+    
+    # Check if the user is a superuser
+    if current_user.is_superuser:
+        medias = Media.objects.all().order_by('uploaded_at')
+    else:
+        # Check if the user is a teacher
+        teacher = Teacher.objects.filter(user=current_user).first()
+        if teacher:
             if teacher.designation == "principal":
                 medias = Media.objects.all().order_by('uploaded_at')
-                context.update({'medias':medias})
-                return render(request,'Notification/view.html',context)
             else:
-                medias = Media.objects.filter(uploaded_by=current_user).order_by('-uploaded_at')
-                context.update({'medias':medias})
-                return render(request,'Notification/view.html',context)
+                medias = Media.objects.filter(uploaded_by=current_user).order_by('uploaded_at')
+        else:
+            medias = Media.objects.none()
 
-@login_required 
-@add_user_context       
+    # Apply filters from the form if it is valid
+    if form.is_valid():
+        title = form.cleaned_data.get('title')
+        pgm = form.cleaned_data.get('pgm')
+        uploaded_by = form.cleaned_data.get('uploaded_by')
+        
+        if title:
+            medias = medias.filter(title__icontains=title)
+        if pgm:
+            medias = medias.filter(pgm__in=pgm)
+        if uploaded_by:
+            user_ids = uploaded_by.values_list('user_id', flat=True)
+            medias = medias.filter(uploaded_by__in=user_ids)
+
+    context.update({'medias': medias, 'form': form})
+    return render(request, 'Notification/view.html', context)
+
+@login_required
+@add_user_context
 def feed(request, context):
     current_user = request.user
-    teacher = Teacher.objects.filter(user=current_user)
-    if teacher.exists():
+
+    # Check if the current user is a superuser
+    if current_user.is_superuser:
+        medias = Media.objects.all().order_by('uploaded_at')
+        context.update({'medias': medias})
+        return render(request, 'Notification/feed.html', context)
+
+    # Check if the current user is a teacher
+    teacher = Teacher.objects.filter(user=current_user).first()
+    if teacher:
         medias = Media.objects.filter(teacher=True).order_by(F('uploaded_at').desc())[:20]
-        context.update({'medias':medias})
-        return render(request,'Notification/feed.html',context)
-    else:
-        student = Student.objects.filter(user=current_user).first()
+        context.update({'medias': medias})
+        return render(request, 'Notification/feed.html', context)
+
+    # Assume the current user is a student if not a teacher
+    try:
+        student = Student.objects.get(user=current_user)
         programme = student.pgm
-        print(programme)
-        medias = Media.objects.filter(student=True,pgm=programme).order_by(F('uploaded_at').desc())[:20]
-        context.update({'medias':medias})
-        
-        return render(request,'Notification/feed.html',context)
+        medias = Media.objects.filter(student=True, pgm=programme).order_by(F('uploaded_at').desc())[:20]
+        context.update({'medias': medias})
+    except Student.DoesNotExist:
+        return render(request, 'Notification/error.html')
+
+    return render(request, 'Notification/feed.html', context)
         
     
 @login_required
@@ -128,10 +158,12 @@ def change_password(request, context):
             user = form.save()
             update_session_auth_hash(request, current_user)  # Keep the user logged in
             return redirect('profile')
+        else:
+            form = PasswordChangeForm(current_user)
+            return render(request, 'Notification/change_password.html', {'context':context,'form':form})
     else:
         form = PasswordChangeForm(current_user)
-        context.update({'form':form})
-    return render(request, 'Notification/change_password.html', context)
+    return render(request, 'Notification/change_password.html', {'context':context,'form':form})
 
 
 @login_required
@@ -160,3 +192,40 @@ def password_reset(request, context, *args, **kwargs):
         form = PasswordResetForm()
         context.update({'form':form})
     return render(request, 'Notification/password_reset.html', context)
+
+@login_required
+@add_user_context
+def edit_media(request, context, media_id):
+    media = Media.objects.get(id=media_id)
+    form = MediaEditForm(instance=media)
+    if request.method == 'POST':
+        form = MediaEditForm(request.POST, instance=media)
+        if form.is_valid():
+            media1 = form.save(commit=False)
+            media1.uploaded_by = media.uploaded_by
+            media1_uploaded_at = media.uploaded_at
+            media1.save()
+            #messages.success(request, 'Media item updated successfully!')
+            return redirect('teacher_view')
+    context.update({'form':form})
+    return render(request, 'Notification/edit_media.html',context)
+
+@login_required
+@add_user_context
+def view_media(request, context, media_id):
+    media = Media.objects.get(id=media_id)
+    context.update({'media':media})
+    return render(request, 'Notification/view_media.html', context)
+
+@login_required
+@add_user_context
+def delete_media(request, context, media_id):
+    if request.method == 'GET':
+        try:
+            media = Media.objects.get(id=media_id)
+            media.delete()
+        except:
+            pass
+        return redirect('teacher_view')
+    else:
+        return HttpResponse('Error Occured')

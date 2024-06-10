@@ -34,7 +34,7 @@ admin.site.register(Student, StudentAdmin)
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('user', 'teacher_id', 'name', 'designation', 'dept', 'hod')
     search_fields = ('name', 'designation', 'dept__dept_name')  
-    list_filter = ('dept', 'hod')  
+    list_filter = ('dept', 'hod','designation')  
 
     def save_model(self, request, obj, form, change):
         obj.save()
