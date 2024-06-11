@@ -60,7 +60,7 @@ class Media(models.Model):
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
     file = models.FileField(upload_to='media_files/',null=True, blank=True)
-    pgm = models.ForeignKey(Programme, on_delete=models.CASCADE)
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Q
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -74,13 +74,13 @@ def teacher_view(request, context):
     # Apply filters from the form if it is valid
     if form.is_valid():
         title = form.cleaned_data.get('title')
-        pgm = form.cleaned_data.get('pgm')
+        dept = form.cleaned_data.get('dept')
         uploaded_by = form.cleaned_data.get('uploaded_by')
         
         if title:
             medias = medias.filter(title__icontains=title)
-        if pgm:
-            medias = medias.filter(pgm__in=pgm)
+        if dept:
+            medias = medias.filter(dept__in=dept)
         if uploaded_by:
             user_ids = uploaded_by.values_list('user_id', flat=True)
             medias = medias.filter(uploaded_by__in=user_ids)
@@ -102,15 +102,18 @@ def feed(request, context):
     # Check if the current user is a teacher
     teacher = Teacher.objects.filter(user=current_user).first()
     if teacher:
-        medias = Media.objects.filter(teacher=True).order_by(F('uploaded_at').desc())[:20]
+        dept = teacher.dept
+        medias = Media.objects.filter(Q(teacher=True) & (Q(dept=dept) | Q(dept__dept_name="All"))
+        ).order_by(F('uploaded_at').desc())[:20]
         context.update({'medias': medias})
         return render(request, 'Notification/feed.html', context)
 
     # Assume the current user is a student if not a teacher
     try:
         student = Student.objects.get(user=current_user)
-        programme = student.pgm
-        medias = Media.objects.filter(student=True, pgm=programme).order_by(F('uploaded_at').desc())[:20]
+        dept = student.pgm.dept_id
+        medias = Media.objects.filter(Q(student=True) & (Q(dept=dept) | Q(dept__dept_name="All"))
+        ).order_by(F('uploaded_at').desc())[:20]
         context.update({'medias': medias})
     except Student.DoesNotExist:
         return render(request, 'Notification/error.html')

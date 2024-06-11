@@ -7,7 +7,7 @@ from .models import *
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ['title', 'description', 'media_type', 'file','student','teacher', 'pgm']
+        fields = ['title', 'description', 'media_type', 'file','student','teacher', 'dept']
 
 class MediaEditForm(forms.ModelForm):
     class Meta:
@@ -16,8 +16,8 @@ class MediaEditForm(forms.ModelForm):
 
 class MediaFilterForm(forms.Form):
     title = forms.CharField(required=False)
-    pgm = forms.ModelMultipleChoiceField(
-        queryset=Programme.objects.all(),
+    dept = forms.ModelMultipleChoiceField(
+        queryset=Department.objects.all(),
         required=False,
         widget=forms.SelectMultiple(attrs={'size': 10})
     )
