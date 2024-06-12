@@ -49,11 +49,8 @@ class Teacher(models.Model):
 
 class Media(models.Model):
     MEDIA_TYPES = (
-        ('image', 'Image'),
-        ('video', 'Video'),
-        ('audio', 'Audio'),
-        ('document', 'Document'),
-        # Add more types as needed
+        ('archive', 'Image'),
+        ('upload', 'Video'),
     )
 
     title = models.CharField(max_length=100)
@@ -63,8 +60,58 @@ class Media(models.Model):
     dept = models.ForeignKey(Department, on_delete=models.CASCADE)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+    
+    def move_to_trash(self, user):
+        TrashMedia.objects.create(
+            title=self.title,
+            description=self.description,
+            media_type=self.media_type,
+            file=self.file,
+            dept=self.dept,
+            student=self.student,
+            teacher=self.teacher,
+            created_at=self.created_at,
+            created_by=self.created_by,
+            trashed_by=user,
+        )
+        self.delete()
+
+
+class TrashMedia(models.Model):
+    MEDIA_TYPES = (
+        ('archive', 'Image'),
+        ('upload', 'Video'),
+    )
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
+    file = models.FileField(upload_to='media_files/',null=True, blank=True)
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE)
+    student = models.BooleanField(default=False)
+    teacher = models.BooleanField(default=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_trashmedia_set')
+    created_at = models.DateTimeField()
+    trashed_at = models.DateTimeField(auto_now_add=True)
+    trashed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='trashed_trashmedia_set', null=True)
+
+    def __str__(self):
+        return self.title
+
+    def restore(self):
+        Media.objects.create(
+            title=self.title,
+            description=self.description,
+            media_type=self.media_type,
+            file=self.file,
+            dept=self.dept,
+            student=self.student,
+            teacher=self.teacher,
+            created_at=self.created_at,
+            created_by=self.created_by,
+        )
+        self.delete()

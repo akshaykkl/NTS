@@ -31,7 +31,7 @@ def add_user_context(view_func):
 def home(request, context):
     current_user = request.user
     if current_user.is_authenticated:
-        return redirect(feed)
+        return render(request, 'base.html', context)
             
             
 @login_required
@@ -43,7 +43,11 @@ def media_upload(request, context):
         form = MediaForm(request.POST,request.FILES)
         if form.is_valid():
             media = form.save(commit=False)
-            media.uploaded_by = request.user
+            media.created_by = request.user
+            if request.POST.get('action') == 'upload':
+                media.media_type = 'upload'
+            elif request.POST.get('action') == 'archive':
+                media.media_type = 'archive'
             media.save()
         else:
             form = MediaForm()
@@ -53,21 +57,22 @@ def media_upload(request, context):
 
 @login_required
 @add_user_context
-def teacher_view(request, context):
-    form = MediaFilterForm(request.GET or None)
+def uploads_view(request, context):
     current_user = request.user
+    form = PrincipalFilterForm(request.GET or None)
     
     # Check if the user is a superuser
     if current_user.is_superuser:
-        medias = Media.objects.all().order_by('uploaded_at')
+        medias = Media.objects.filter(media_type="upload").order_by('created_at')
     else:
         # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
-                medias = Media.objects.all().order_by('uploaded_at')
+                medias = Media.objects.filter(media_type="upload").order_by('created_at')
             else:
-                medias = Media.objects.filter(uploaded_by=current_user).order_by('uploaded_at')
+                form = TeacherFilterForm(request.GET or None)
+                medias = Media.objects.filter(created_by=current_user, media_type="upload").order_by('created_at')
         else:
             medias = Media.objects.none()
 
@@ -75,18 +80,98 @@ def teacher_view(request, context):
     if form.is_valid():
         title = form.cleaned_data.get('title')
         dept = form.cleaned_data.get('dept')
-        uploaded_by = form.cleaned_data.get('uploaded_by')
+        created_by = form.cleaned_data.get('created_by')
         
         if title:
             medias = medias.filter(title__icontains=title)
         if dept:
             medias = medias.filter(dept__in=dept)
-        if uploaded_by:
-            user_ids = uploaded_by.values_list('user_id', flat=True)
-            medias = medias.filter(uploaded_by__in=user_ids)
+        if created_by:
+            user_ids = created_by.values_list('user_id', flat=True)
+            medias = medias.filter(created_by__in=user_ids)
 
     context.update({'medias': medias, 'form': form})
     return render(request, 'Notification/view.html', context)
+
+
+@add_user_context
+@login_required
+def archive_view(request, context):
+    current_user = request.user
+    form = PrincipalFilterForm(request.GET or None)
+    
+    # Check if the user is a superuser
+    if current_user.is_superuser:
+        medias = Media.objects.filter(media_type="archive").order_by('created_at')
+    else:
+        # Check if the user is a teacher
+        teacher = Teacher.objects.filter(user=current_user).first()
+        if teacher:
+            if teacher.designation == "principal":
+                medias = Media.objects.filter(media_type="archive").order_by('created_at')
+            else:
+                form = TeacherFilterForm(request.GET or None)
+                medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('created_at')
+        else:
+            medias = Media.objects.none()
+
+    # Apply filters from the form if it is valid
+    if form.is_valid():
+        title = form.cleaned_data.get('title')
+        dept = form.cleaned_data.get('dept')
+        created_by = form.cleaned_data.get('created_by')
+        
+        if title:
+            medias = medias.filter(title__icontains=title)
+        if dept:
+            medias = medias.filter(dept__in=dept)
+        if created_by:
+            user_ids = created_by.values_list('user_id', flat=True)
+            medias = medias.filter(created_by__in=user_ids)
+
+    context.update({'medias': medias, 'form': form})
+    return render(request, 'Notification/view.html', context)
+
+
+@add_user_context
+@login_required
+def trash_view(request, context):
+    current_user = request.user
+    form = PrincipalFilterForm(request.GET or None)
+    
+    # Check if the user is a superuser
+    if current_user.is_superuser:
+        medias = TrashMedia.objects.filter().order_by('created_at')
+    else:
+        # Check if the user is a teacher
+        teacher = Teacher.objects.filter(user=current_user).first()
+        if teacher:
+            if teacher.designation == "principal":
+                medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('trashed_at')
+            else:
+                form = TeacherFilterForm(request.GET or None)
+                medias = TrashMedia.objects.filter(created_by=current_user).order_by('created_at')
+        else:
+            medias = Media.objects.none()
+
+    # Apply filters from the form if it is valid
+    if form.is_valid():
+        title = form.cleaned_data.get('title')
+        dept = form.cleaned_data.get('dept')
+        created_by = form.cleaned_data.get('created_by')
+        
+        if title:
+            medias = medias.filter(title__icontains=title)
+        if dept:
+            medias = medias.filter(dept__in=dept)
+        if created_by:
+            user_ids = created_by.values_list('user_id', flat=True)
+            medias = medias.filter(created_by__in=user_ids)
+
+    context.update({'medias': medias, 'form': form})
+    return render(request, 'Notification/view.html', context)
+
+
 
 @login_required
 @add_user_context
@@ -95,7 +180,7 @@ def feed(request, context):
 
     # Check if the current user is a superuser
     if current_user.is_superuser:
-        medias = Media.objects.all().order_by('uploaded_at')
+        medias = Media.objects.filter(media_type='upload').order_by('created_at')
         context.update({'medias': medias})
         return render(request, 'Notification/feed.html', context)
 
@@ -103,8 +188,10 @@ def feed(request, context):
     teacher = Teacher.objects.filter(user=current_user).first()
     if teacher:
         dept = teacher.dept
-        medias = Media.objects.filter(Q(teacher=True) & (Q(dept=dept) | Q(dept__dept_name="All"))
-        ).order_by(F('uploaded_at').desc())[:20]
+        medias = Media.objects.filter(
+        Q(teacher=True) &
+        (Q(dept=dept) | Q(dept__dept_name="All")) &
+        Q(media_type='upload')).order_by('-created_at')[:20]
         context.update({'medias': medias})
         return render(request, 'Notification/feed.html', context)
 
@@ -112,8 +199,11 @@ def feed(request, context):
     try:
         student = Student.objects.get(user=current_user)
         dept = student.pgm.dept_id
-        medias = Media.objects.filter(Q(student=True) & (Q(dept=dept) | Q(dept__dept_name="All"))
-        ).order_by(F('uploaded_at').desc())[:20]
+        medias = Media.objects.filter(
+        Q(student=True) &
+        (Q(dept=dept) | Q(dept__dept_name="All")) &
+        Q(media_type='upload')).order_by('-created_at')[:20]
+        context.update({'medias': medias})
         context.update({'medias': medias})
     except Student.DoesNotExist:
         return render(request, 'Notification/error.html')
@@ -205,11 +295,11 @@ def edit_media(request, context, media_id):
         form = MediaEditForm(request.POST, instance=media)
         if form.is_valid():
             media1 = form.save(commit=False)
-            media1.uploaded_by = media.uploaded_by
-            media1_uploaded_at = media.uploaded_at
+            media1.created_by = media.created_by
+            media1_created_at = media.created_at
             media1.save()
             #messages.success(request, 'Media item updated successfully!')
-            return redirect('teacher_view')
+            return redirect('uploads_view')
     context.update({'form':form})
     return render(request, 'Notification/edit_media.html',context)
 
@@ -226,9 +316,9 @@ def delete_media(request, context, media_id):
     if request.method == 'GET':
         try:
             media = Media.objects.get(id=media_id)
-            media.delete()
+            media.move_to_trash(request.user)
         except:
             pass
-        return redirect('teacher_view')
+        return redirect('uploads_view')
     else:
         return HttpResponse('Error Occured')

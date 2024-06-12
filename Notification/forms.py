@@ -7,14 +7,14 @@ from .models import *
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ['title', 'description', 'media_type', 'file','student','teacher', 'dept']
+        fields = ['title', 'description', 'file', 'dept', 'student','teacher']
 
 class MediaEditForm(forms.ModelForm):
     class Meta:
         model = Media
         exclude = ['uploaded_by', 'uploaded_at']
 
-class MediaFilterForm(forms.Form):
+class PrincipalFilterForm(forms.Form):
     title = forms.CharField(required=False)
     dept = forms.ModelMultipleChoiceField(
         queryset=Department.objects.all(),
@@ -26,3 +26,12 @@ class MediaFilterForm(forms.Form):
         required=False,
         widget=forms.SelectMultiple(attrs={'size':10})
     )
+
+class TeacherFilterForm(forms.Form):
+    title = forms.CharField(required=False)
+    dept = forms.ModelMultipleChoiceField(
+        queryset=Department.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple(attrs={'size': 10})
+    )
+    
