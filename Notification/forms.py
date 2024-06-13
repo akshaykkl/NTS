@@ -12,7 +12,12 @@ class MediaForm(forms.ModelForm):
 class MediaEditForm(forms.ModelForm):
     class Meta:
         model = Media
-        exclude = ['uploaded_by', 'uploaded_at']
+        exclude = ['created_by', 'created_at', 'media_type']
+
+class TrashEditForm(forms.ModelForm):
+    class Meta:
+        model = TrashMedia
+        exclude = ['created_by', 'created_at', 'media_type','trashed_by', 'trashed_at']
 
 class PrincipalFilterForm(forms.Form):
     title = forms.CharField(required=False)

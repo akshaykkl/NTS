@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q
 from django.contrib import messages
@@ -90,7 +90,7 @@ def uploads_view(request, context):
             user_ids = created_by.values_list('user_id', flat=True)
             medias = medias.filter(created_by__in=user_ids)
 
-    context.update({'medias': medias, 'form': form})
+    context.update({'medias': medias, 'form': form, 'uploads':1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -129,7 +129,7 @@ def archive_view(request, context):
             user_ids = created_by.values_list('user_id', flat=True)
             medias = medias.filter(created_by__in=user_ids)
 
-    context.update({'medias': medias, 'form': form})
+    context.update({'medias': medias, 'form': form, 'archive':1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -168,7 +168,7 @@ def trash_view(request, context):
             user_ids = created_by.values_list('user_id', flat=True)
             medias = medias.filter(created_by__in=user_ids)
 
-    context.update({'medias': medias, 'form': form})
+    context.update({'medias': medias, 'form': form, 'trash': 1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -305,14 +305,31 @@ def edit_media(request, context, media_id):
 
 @login_required
 @add_user_context
+def edit_trash(request, context, media_id):
+    media = TrashMedia.objects.get(id=media_id)
+    form = TrashEditForm(instance=media)
+    if request.method == 'POST':
+        form = TrashEditForm(request.POST, instance=media)
+        if form.is_valid():
+            media1 = form.save(commit=False)
+            media1.created_by = media.created_by
+            media1_created_at = media.created_at
+            media1.save()
+            #messages.success(request, 'Media item updated successfully!')
+            return redirect('trash_view')
+    context.update({'form':form})
+    return render(request, 'Notification/edit_media.html',context)
+
+
+@login_required
+@add_user_context
 def view_media(request, context, media_id):
     media = Media.objects.get(id=media_id)
     context.update({'media':media})
     return render(request, 'Notification/view_media.html', context)
 
 @login_required
-@add_user_context
-def delete_media(request, context, media_id):
+def move_to_trash(request, media_id):
     if request.method == 'GET':
         try:
             media = Media.objects.get(id=media_id)
@@ -322,3 +339,49 @@ def delete_media(request, context, media_id):
         return redirect('uploads_view')
     else:
         return HttpResponse('Error Occured')
+
+@login_required
+def delete_media(request, media_id):
+    if request.method == 'GET':
+        try:
+            media = get_object_or_404(TrashMedia, id=media_id)
+            print('\n\n\n')
+            media.delete()
+            return redirect('trash_view')
+        except TrashMedia.DoesNotExist:
+            return HttpResponseBadRequest('Media not found.')
+        except Exception as e:
+            return HttpResponseBadRequest(f'An error occurred: {e}')
+    else:
+        return HttpResponseBadRequest('Invalid request method.')
+
+@login_required
+def swap_type(request, media_id):
+    if request.method == 'GET':
+        try:
+            media = Media.objects.get(id=media_id)
+            if media.media_type == 'upload':
+                media.media_type = 'archive'
+                media.save()
+                return redirect('uploads_view')
+            elif media.media_type == 'archive':
+                media.media_type = 'upload'
+                media.save()
+                return redirect('archive_view')
+            return HttpResponse('Media type swapped successfully.')
+        except Media.DoesNotExist:
+            return HttpResponseBadRequest('Media not found.')
+        except Exception as e:
+            return HttpResponseBadRequest(f'An error occurred: {e}')
+    else:
+        return HttpResponseBadRequest('Invalid request method.')
+
+@login_required
+def restore(request, media_id):
+    if request.method == 'GET':
+        try:
+            media = TrashMedia.objects.get(id=media_id)
+            media.restore()
+        except:
+            pass
+    return redirect('trash_view')

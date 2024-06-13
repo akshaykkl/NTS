@@ -84,8 +84,8 @@ class Media(models.Model):
 
 class TrashMedia(models.Model):
     MEDIA_TYPES = (
-        ('archive', 'Image'),
-        ('upload', 'Video'),
+        ('archive', 'Archive'),
+        ('upload', 'Uploads'),
     )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
