@@ -37,8 +37,8 @@
             <td>{{ item.title }}</td>
             <td>{{ item.description }}</td>
             <td>{{ item.media_type }}</td>
-            <td>{{ item.uploaded_by }}</td>
-            <td>{{ item.uploaded_at }}</td>
+            <td>{{ item.created_by }}</td>
+            <td>{{ item.created_at }}</td>
             <td>
                 {% if item.file %}
                     <a href="{{ item.file.url }}" target="_blank">View File</a>

@@ -49,6 +49,7 @@ def media_upload(request, context):
             elif request.POST.get('action') == 'archive':
                 media.media_type = 'archive'
             media.save()
+            return redirect('media_upload')
         else:
             form = MediaForm()
     context.update({'form':form})
@@ -299,7 +300,14 @@ def edit_media(request, context, media_id):
             media1_created_at = media.created_at
             media1.save()
             #messages.success(request, 'Media item updated successfully!')
-            return redirect('uploads_view')
+            if media.media_type == 'upload':
+                return redirect('uploads_view')
+            elif media.media_type == 'archive':
+                return redirect('archive_view')
+    if media.media_type == 'upload':
+        context.update({'upload':True})
+    elif media.media_type == 'archive':
+        context.update({'archive':True})
     context.update({'form':form})
     return render(request, 'Notification/edit_media.html',context)
 
@@ -317,7 +325,7 @@ def edit_trash(request, context, media_id):
             media1.save()
             #messages.success(request, 'Media item updated successfully!')
             return redirect('trash_view')
-    context.update({'form':form})
+    context.update({'form':form, 'trash':True})
     return render(request, 'Notification/edit_media.html',context)
 
 

@@ -72,20 +72,20 @@
     color: #fff;
 }
 
+
+
+
 .footer {
     background-color: lightskyblue;
+    padding: 20px 0;
+    text-align: center;
+    width: 100%;
+    position: sticky;
+    bottom: 0;
 }
 
 .footer p {
     color: #ffffff;
-}
-
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
-
-body, html {
-    padding: 0;
     margin: 0;
-    width: 100%;
 }
+
