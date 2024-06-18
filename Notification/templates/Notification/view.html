@@ -1,32 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 {% block style %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
-<style>
-    
-    .filter-form {
-        margin-bottom: 20px;
-    }
-    .filter-form input, .filter-form select, .filter-form button {
-        margin-right: 10px;
-    }
-    .media-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .media-table th, .media-table td {
-        border: 1px solid #ddd;
-        padding: 8px;
-    }
-    .media-table th {
-        background-color: #f2f2f2;
-        text-align: left;
-    }
-</style>
+
+
 {% endblock style %}
 {% block content %}
 <!-- Button to toggle edit mode -->
-
+{% if uploads %}
+    <h3>Uploads</h3>
+{% elif archive %}
+    <h3>Archive</h3>
+{% elif trash %}
+    <h3>Trash</h3>
+{% endif %}
 <form method="get" class="filter-form" id="filterForm">
     {{ form.as_p }}
     <button type="submit">Filter</button>
@@ -51,8 +37,8 @@
             <td>{{ item.title }}</td>
             <td>{{ item.description }}</td>
             <td>{{ item.media_type }}</td>
-            <td>{{ item.uploaded_by }}</td>
-            <td>{{ item.uploaded_at }}</td>
+            <td>{{ item.created_by }}</td>
+            <td>{{ item.created_at }}</td>
             <td>
                 {% if item.file %}
                     <a href="{{ item.file.url }}" target="_blank">View File</a>
@@ -60,11 +46,38 @@
                     No File Uploaded
                 {% endif %}
             </td>
+            {% if uploads %}
             <td class="action-column">
-                <a href="{% url 'view_media' item.id %}">
-                    <button>More</button>
+                <a href="{% url 'swap_type' item.id %}">
+                    <button>Archive</button>
                    </a> /
                 <a href="{% url 'edit_media' item.id %}">
+                 <button>Edit</button>
+                </a> /
+                <a href="{% url 'move_to_trash' item.id %}"
+                onclick="return confirm('Are you sure you want to delete?')">
+                    <button>Delete</button>
+                </a>
+            </td>
+            {% elif archive %}
+            <td class="action-column">
+                <a href="{% url 'swap_type' item.id %}">
+                    <button>Upload</button>
+                   </a> /
+                <a href="{% url 'edit_media' item.id %}">
+                 <button>Edit</button>
+                </a> /
+                <a href="{% url 'move_to_trash' item.id %}"
+                onclick="return confirm('Are you sure you want to delete?')">
+                    <button>Delete</button>
+                </a>
+            </td>
+            {% elif trash %}
+            <td class="action-column">
+                <a href="{% url 'restore' item.id %}">
+                    <button>Restore</button>
+                   </a> /
+                <a href="{% url 'edit_trash' item.id %}">
                  <button>Edit</button>
                 </a> /
                 <a href="{% url 'delete_media' item.id %}"
@@ -72,6 +85,7 @@
                     <button>Delete</button>
                 </a>
             </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

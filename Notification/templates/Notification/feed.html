@@ -11,8 +11,8 @@
         <div class="card-body">
             <p><strong>Description:</strong> {{ item.description }}</p>
             <p><strong>Type:</strong> {{ item.media_type }}</p>
-            <p><strong>Uploaded By:</strong> {{ item.uploaded_by }}</p>
-            <p><strong>Uploaded At:</strong> {{ item.uploaded_at }}</p>
+            <p><strong>Uploaded By:</strong> {{ item.created_by }}</p>
+            <p><strong>Uploaded At:</strong> {{ item.created_at }}</p>
         </div>
         <div class="card-footer">
             {% if item.file %}

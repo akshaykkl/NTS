@@ -4,34 +4,52 @@
 <title>Edit</title>
 {% endblock title %}
 {% block style %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">  
-    <link rel="stylesheet" href="{% static 'css/media_upload.css' %}">
-    <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        
-        .alert.success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}"> 
 {% endblock style %}
 {% block content %}
-    <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Save Changes</button>
-    </form>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert success">
-                {{ message }}
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="edit-card">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    {% if upload %}
+                        <h2 class="mb-0">Edit Upload</h2>
+                    {% elif archive %}
+                        <h2 class="mb-0">Edit Archive</h2>
+                    {% elif trash %}
+                        <h2 class="mb-0">Edit Trash</h2>
+                    {% endif %}
+                </div>
+                <div class="card-body p-4">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_file" class="form-label">File</label>
+                            {{ form.file }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_dept" class="form-label">Department</label>
+                            {{ form.dept }}
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="id_student" name="student">
+                            <label class="form-check-label" for="id_student">Student</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="id_teacher" name="teacher">
+                            <label class="form-check-label" for="id_teacher">Teacher</label>
+                        </div>
+                        <button type="submit" class="btn btn-upload">Save Changes</button>
+                    </form>
+                </div>
             </div>
-        {% endfor %}
-    {% endif %}
+        </div>
+    </div>
 {% endblock content %}
