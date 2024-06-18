@@ -1,6 +1,6 @@
 # In forms.py
 from django import forms
-from django.conf import settings
+from django.contrib.auth.models import User
 from .models import *
 
 
@@ -40,3 +40,29 @@ class TeacherFilterForm(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 10})
     )
     
+class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+class TeacherForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['teacher_id', 'name', 'designation', 'dept', 'hod']
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['admn_no', 'name', 'gender', 'year_of_admission', 'pgm', 'current_sem', 'status']
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['dept_name']
+
+class ProgrammeForm(forms.ModelForm):
+    class Meta:
+        model = Programme
+        fields = ['pgm_name', 'grad_level', 'dept_id']

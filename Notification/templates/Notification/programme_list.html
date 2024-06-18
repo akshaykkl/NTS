@@ -1,0 +1,35 @@
+{% extends "base.html" %}<!DOCTYPE html>\
+{% load static %}
+{% block content %}
+<title>Programme List</title>
+
+    <h1>Programme List</h1>
+    <a href="{% url 'add_programme' %}">Add New Programme</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Grad Level</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for programme in programmes %}
+                <tr>
+                    <td>{{ programme.id }}</td>
+                    <td>{{ programme.pgm_name }}</td>
+                    <td>{{ programme.grad_level }}</td>
+                    <td>{{ programme.dept_id.dept_name }}</td>
+                    <td>
+                        <a href="{% url 'edit_programme' programme.id %}">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
+{% endblock content %}

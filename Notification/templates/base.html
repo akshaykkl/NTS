@@ -92,6 +92,25 @@
                                     <li><a class="dropdown-item" href="{% url 'trash_view' %}"><i class="fas fa-chalkboard-teacher"></i> Trash</a></li>
                                 </ul>
                             </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle me-2" href="" id="navbarDropdown3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-eye"></i> Users
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown3">
+                                    <li><a class="dropdown-item" href="{% url "teachers" %}"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                                    <li><a class="dropdown-item" href="{% url "students" %}"><i class="fas fa-chalkboard-teacher"></i> Students</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link me-2" href="{% url "departments" %}">
+                                    <i class="fas fa-upload"></i> Departments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link me-2" href="{% url 'programmes' %}">
+                                    <i class="fas fa-upload"></i> Programmes
+                                </a>
+                            </li>
                             {% endif %}
                         </ul>
                     </div>

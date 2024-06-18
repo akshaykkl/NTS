@@ -25,6 +25,15 @@ def add_user_context(view_func):
         return view_func(request, context, *args, **kwargs)
     return _wrapped_view
 
+def superuser_or_teacher_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        user = request.user
+        if user.is_superuser or hasattr(user, 'teacher'):
+            return view_func(request, *args, **kwargs)
+        else:
+            return HttpResponseBadRequest("Bad Request: You do not have permission to access this page.")
+    return _wrapped_view
 
 @login_required
 @add_user_context
@@ -35,6 +44,7 @@ def home(request, context):
             
             
 @login_required
+@superuser_or_teacher_required
 @add_user_context
 def media_upload(request, context):
     form = MediaForm()
@@ -57,6 +67,7 @@ def media_upload(request, context):
     
 
 @login_required
+@superuser_or_teacher_required
 @add_user_context
 def uploads_view(request, context):
     current_user = request.user
@@ -96,6 +107,7 @@ def uploads_view(request, context):
 
 
 @add_user_context
+@superuser_or_teacher_required
 @login_required
 def archive_view(request, context):
     current_user = request.user
@@ -135,6 +147,7 @@ def archive_view(request, context):
 
 
 @add_user_context
+@superuser_or_teacher_required
 @login_required
 def trash_view(request, context):
     current_user = request.user
@@ -288,6 +301,7 @@ def password_reset(request, context, *args, **kwargs):
     return render(request, 'Notification/password_reset.html', context)
 
 @login_required
+@superuser_or_teacher_required
 @add_user_context
 def edit_media(request, context, media_id):
     media = Media.objects.get(id=media_id)
@@ -312,6 +326,7 @@ def edit_media(request, context, media_id):
     return render(request, 'Notification/edit_media.html',context)
 
 @login_required
+@superuser_or_teacher_required
 @add_user_context
 def edit_trash(request, context, media_id):
     media = TrashMedia.objects.get(id=media_id)
@@ -330,6 +345,7 @@ def edit_trash(request, context, media_id):
 
 
 @login_required
+@superuser_or_teacher_required
 @add_user_context
 def view_media(request, context, media_id):
     media = Media.objects.get(id=media_id)
@@ -337,6 +353,7 @@ def view_media(request, context, media_id):
     return render(request, 'Notification/view_media.html', context)
 
 @login_required
+@superuser_or_teacher_required
 def move_to_trash(request, media_id):
     if request.method == 'GET':
         try:
@@ -349,6 +366,7 @@ def move_to_trash(request, media_id):
         return HttpResponse('Error Occured')
 
 @login_required
+@superuser_or_teacher_required
 def delete_media(request, media_id):
     if request.method == 'GET':
         try:
@@ -364,6 +382,7 @@ def delete_media(request, media_id):
         return HttpResponseBadRequest('Invalid request method.')
 
 @login_required
+@superuser_or_teacher_required
 def swap_type(request, media_id):
     if request.method == 'GET':
         try:
@@ -385,6 +404,7 @@ def swap_type(request, media_id):
         return HttpResponseBadRequest('Invalid request method.')
 
 @login_required
+@superuser_or_teacher_required
 def restore(request, media_id):
     if request.method == 'GET':
         try:
@@ -393,3 +413,174 @@ def restore(request, media_id):
         except:
             pass
     return redirect('trash_view')
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def teachers(request, context):
+    teachers = Teacher.objects.all()
+    context.update({'teachers':teachers})
+    return render(request, 'Notification/showusers.html', context)
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def students(request, context):
+    students = Student.objects.all()
+    context.update({'students':students})
+    return render(request, 'Notification/showusers.html', context)
+
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def manage_teacher(request, context, teacher_id=None):
+    if teacher_id:
+        teacher = get_object_or_404(Teacher, pk=teacher_id)
+        user = teacher.user
+        if request.user.is_superuser or request.user == user:
+            pass
+        else:
+            return HttpResponseBadRequest("You are not authorized to edit this teacher.")
+    else:
+        teacher = None
+        user = None
+
+    if request.method == 'POST':
+        if teacher:
+            user_form = UserForm(request.POST, instance=user)
+            teacher_form = TeacherForm(request.POST, instance=teacher)
+        else:
+            user_form = UserForm(request.POST)
+            teacher_form = TeacherForm(request.POST)
+
+        if user_form.is_valid() and teacher_form.is_valid():
+            user = user_form.save(commit=False)
+            if not teacher:
+                user.set_password(user_form.cleaned_data['password'])
+            user.save()
+
+            teacher = teacher_form.save(commit=False)
+            teacher.user = user
+            teacher.save()
+
+            return redirect('some_view_name')  # Redirect to a success page
+    else:
+        if teacher:
+            user_form = UserForm(instance=user)
+            teacher_form = TeacherForm(instance=teacher)
+        else:
+            user_form = UserForm()
+            teacher_form = TeacherForm()
+
+    context.update({
+        'user_form': user_form,
+        'teacher_form': teacher_form,
+        'teacher': teacher,
+    })
+    return render(request, 'your_template_name.html', context)
+
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def manage_student(request, context, student_id=None):
+    if student_id:
+        student = get_object_or_404(Student, pk=student_id)
+        user = student.user
+        if request.user.is_superuser or request.user == user:
+            pass
+        else:
+            return HttpResponseBadRequest("You are not authorized to edit this student.")
+    else:
+        student = None
+        user = None
+
+    if request.method == 'POST':
+        if student:
+            user_form = UserForm(request.POST, instance=user)
+            student_form = StudentForm(request.POST, instance=student)
+        else:
+            user_form = UserForm(request.POST)
+            student_form = StudentForm(request.POST)
+
+        if user_form.is_valid() and student_form.is_valid():
+            user = user_form.save(commit=False)
+            if not student:
+                user.set_password(user_form.cleaned_data['password'])
+            user.save()
+
+            student = student_form.save(commit=False)
+            student.user = user
+            student.save()
+
+            return redirect('some_view_name')  # Redirect to a success page
+    else:
+        if student:
+            user_form = UserForm(instance=user)
+            student_form = StudentForm(instance=student)
+        else:
+            user_form = UserForm()
+            student_form = StudentForm()
+
+    context.update({
+        'user_form': user_form,
+        'student_form': student_form,
+        'student': student,
+    })
+    return render(request, 'your_student_template_name.html', context)
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context 
+def department_list(request, context):
+    departments = Department.objects.all()
+    context.update({'departments': departments})
+    return render(request, 'Notification/department_list.html', context)
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context 
+def programme_list(request, context):
+    programmes = Programme.objects.all()
+    context.update({'programmes': programmes})
+    return render(request, 'Notification/programme_list.html', context)
+
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context 
+def add_edit_department(request, context, department_id=None):
+    if department_id:
+        department = get_object_or_404(Department, id=department_id)
+    else:
+        department = None
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            #return redirect('Notification/department_list')  # Adjust the redirect as needed
+    else:
+        form = DepartmentForm(instance=department)
+    context.update({'form': form})
+    return render(request, 'Notification/department_form.html', context)
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def add_edit_programme(request, context,programme_id=None):
+    if programme_id:
+        programme = get_object_or_404(Programme, id=programme_id)
+    else:
+        programme = None
+
+    if request.method == 'POST':
+        form = ProgrammeForm(request.POST, instance=programme)
+        if form.is_valid():
+            form.save()
+            #return redirect('Notification/programme_list')  # Adjust the redirect as needed
+    else:
+        form = ProgrammeForm(instance=programme)
+    context.update({'form':form})
+    return render(request, 'Notification/programme_form.html', context)
