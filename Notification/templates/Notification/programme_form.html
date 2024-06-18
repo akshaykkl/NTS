@@ -1,0 +1,14 @@
+{% extends "base.html" %}<!DOCTYPE html>
+{% load static %}
+{% block title %}    <title>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Programme</title>{% endblock title %}
+{% block content %}
+
+
+        <h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Programme</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">{% if form.instance.pk %}Update{% else %}Add{% endif %}</button>
+        </form>
+{% endblock content %}
+

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% block style %}{% endblock style %}
+{% block content %}
+    <table>
+        <tr>
+            <th>Name</th>
+        </tr>
+        {% if teachers %}
+        {% for item in teachers %}
+        <tr><td>{{ item.name }}</td></tr>
+        {% endfor %}
+        {% elif students %}
+        {% for item in students %}
+        <tr><td>{{ item.name }}</td></tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+{% endblock content %}
