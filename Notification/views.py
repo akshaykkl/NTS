@@ -419,7 +419,7 @@ def restore(request, media_id):
 @add_user_context
 def teachers(request, context):
     teachers = Teacher.objects.all()
-    context.update({'teachers':teachers})
+    context.update({'teachers':teachers,'teacher':True})
     return render(request, 'Notification/showusers.html', context)
 
 @login_required
@@ -427,7 +427,7 @@ def teachers(request, context):
 @add_user_context
 def students(request, context):
     students = Student.objects.all()
-    context.update({'students':students})
+    context.update({'students':students, 'student':True})
     return render(request, 'Notification/showusers.html', context)
 
 
@@ -478,7 +478,7 @@ def manage_teacher(request, context, teacher_id=None):
         'teacher_form': teacher_form,
         'teacher': teacher,
     })
-    return render(request, 'your_template_name.html', context)
+    return render(request, 'Notification/teacher.html', context)
 
 
 @login_required
@@ -528,7 +528,23 @@ def manage_student(request, context, student_id=None):
         'student_form': student_form,
         'student': student,
     })
-    return render(request, 'your_student_template_name.html', context)
+    return render(request, 'Notification/student.html', context)
+
+@login_required
+@superuser_or_teacher_required
+def delete_teacher(request, teacher_id):
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    teacher.user.delete()  # This deletes the associated user as well.
+    teacher.delete()
+    return redirect('teachers')  # Replace 'teacher_list' with your actual URL name for the list of teachers.
+
+@login_required
+@superuser_or_teacher_required
+def delete_student(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    student.user.delete()  # This deletes the associated user as well.
+    student.delete()
+    return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
 
 @login_required
 @superuser_or_teacher_required

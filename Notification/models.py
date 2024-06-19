@@ -18,7 +18,7 @@ class Student(models.Model):
     gender_choices = [('male', 'Male'),
                      ('female', 'Female'),
                      ('other', 'Other')]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     admn_no = models.IntegerField(unique=True)
     name = models.CharField(max_length=30)
     gender = models.CharField(max_length=10, choices=gender_choices)

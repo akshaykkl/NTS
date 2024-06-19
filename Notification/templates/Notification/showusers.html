@@ -2,18 +2,41 @@
 {% load static %}
 {% block style %}{% endblock style %}
 {% block content %}
+    {% if teacher %}
+        <a href="{% url 'add_teacher' %}" class="add-button">Add Teacher</a>
+    {% elif student %}
+        <a href="{% url 'add_student' %}" class="add-button">Add Student</a>
+    {% endif %}
+
     <table>
         <tr>
             <th>Name</th>
+            <th>Actions</th>
         </tr>
         {% if teachers %}
-        {% for item in teachers %}
-        <tr><td>{{ item.name }}</td></tr>
-        {% endfor %}
+            {% for item in teachers %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_teacher' item.id %}">Edit</a>
+                            <a href=""{% url "delete_teacher" item.id %} class="delete" onclick="return confirm('Are you sure you want to delete this teacher?');">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
         {% elif students %}
-        {% for item in students %}
-        <tr><td>{{ item.name }}</td></tr>
-        {% endfor %}
+            {% for item in students %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_student' item.id %}">Edit</a>
+                            <a href="{% url "delete_student" item.id %}" class="delete" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
         {% endif %}
     </table>
 {% endblock content %}

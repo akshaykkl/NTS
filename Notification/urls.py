@@ -21,16 +21,18 @@ urlpatterns = [
     path('restore<int:media_id>', restore, name='restore'),
     path('teachers/', teachers, name='teachers'),
     path('teacher/manage/', manage_teacher, name='add_teacher'),
-    path('teacher/manage/<int:teacher_id>/', manage_teacher, name='manage_teacher'),
+    path('teacher/manage/<int:teacher_id>/', manage_teacher, name='edit_teacher'),
     path('students/', students, name='students'),
     path('student/manage/', manage_student, name='add_student'),
-    path('student/manage/<int:student_id>/', manage_student, name='manage_student'),
+    path('student/manage/<int:student_id>/', manage_student, name='edit_student'),
     path('departments/', department_list, name='departments'),
     path('department/', add_edit_department, name='add_department'),
     path('department/<int:department_id>/', add_edit_department, name='edit_department'),
     path('programmes/', programme_list, name='programmes'),
     path('programme/', add_edit_programme, name='add_programme'),
     path('programme/<int:programme_id>/', add_edit_programme, name='edit_programme'),
+    path('delete_teacher/<int:teacher_id>/', delete_teacher, name='delete_teacher'),
+    path('delete_student/<int:student_id>/', delete_student, name='delete_student'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
