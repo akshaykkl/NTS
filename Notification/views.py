@@ -534,6 +534,7 @@ def manage_student(request, context, student_id=None):
 @superuser_or_teacher_required
 def delete_teacher(request, teacher_id):
     teacher = get_object_or_404(Teacher, id=teacher_id)
+    print(teacher)
     teacher.user.delete()  # This deletes the associated user as well.
     teacher.delete()
     return redirect('teachers')  # Replace 'teacher_list' with your actual URL name for the list of teachers.
@@ -542,6 +543,7 @@ def delete_teacher(request, teacher_id):
 @superuser_or_teacher_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, id=student_id)
+    print(student)
     student.user.delete()  # This deletes the associated user as well.
     student.delete()
     return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
