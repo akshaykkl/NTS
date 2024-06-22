@@ -7,9 +7,12 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import PasswordResetView
+from django.core.paginator import Paginator
+
 from django.conf import settings
 from .models import *
 from .forms import *
+from .filters import *
 from .utils import *
 from functools import wraps
 
@@ -65,84 +68,62 @@ def media_upload(request, context):
     context.update({'form':form})
     return  render(request, 'Notification/media_upload.html', context)
     
-
 @login_required
 @superuser_or_teacher_required
 @add_user_context
 def uploads_view(request, context):
     current_user = request.user
-    form = PrincipalFilterForm(request.GET or None)
-    
     # Check if the user is a superuser
     if current_user.is_superuser:
         medias = Media.objects.filter(media_type="upload").order_by('created_at')
+        filter = PrincipalFilterForm(request.GET, queryset=medias)
     else:
         # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
                 medias = Media.objects.filter(media_type="upload").order_by('created_at')
+                filter = PrincipalFilterForm(request.GET, queryset=medias)
             else:
                 form = TeacherFilterForm(request.GET or None)
                 medias = Media.objects.filter(created_by=current_user, media_type="upload").order_by('created_at')
+                filter = TeacherFilterForm(request.GET, queryset=medias)
         else:
             medias = Media.objects.none()
 
-    # Apply filters from the form if it is valid
-    if form.is_valid():
-        title = form.cleaned_data.get('title')
-        dept = form.cleaned_data.get('dept')
-        created_by = form.cleaned_data.get('created_by')
-        
-        if title:
-            medias = medias.filter(title__icontains=title)
-        if dept:
-            medias = medias.filter(dept__in=dept)
-        if created_by:
-            user_ids = created_by.values_list('user_id', flat=True)
-            medias = medias.filter(created_by__in=user_ids)
-
-    context.update({'medias': medias, 'form': form, 'uploads':1})
+    medias = filter.qs
+    paginator = Paginator(medias, 5)
+    page = request.GET.get('page')
+    medias_page = paginator.get_page(page)
+    context.update({'medias': medias_page, 'filter': filter, 'uploads': 1})
     return render(request, 'Notification/view.html', context)
-
 
 @add_user_context
 @superuser_or_teacher_required
 @login_required
 def archive_view(request, context):
     current_user = request.user
-    form = PrincipalFilterForm(request.GET or None)
+
     
     # Check if the user is a superuser
     if current_user.is_superuser:
         medias = Media.objects.filter(media_type="archive").order_by('created_at')
+        filter = PrincipalFilterForm(request.GET, queryset=medias)
     else:
         # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
                 medias = Media.objects.filter(media_type="archive").order_by('created_at')
+                filter = PrincipalFilterForm(request.GET, queryset=medias)
             else:
                 form = TeacherFilterForm(request.GET or None)
                 medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('created_at')
+                filter = TeacherFilterForm(request.GET, queryset=medias)
         else:
             medias = Media.objects.none()
-
-    # Apply filters from the form if it is valid
-    if form.is_valid():
-        title = form.cleaned_data.get('title')
-        dept = form.cleaned_data.get('dept')
-        created_by = form.cleaned_data.get('created_by')
-        
-        if title:
-            medias = medias.filter(title__icontains=title)
-        if dept:
-            medias = medias.filter(dept__in=dept)
-        if created_by:
-            user_ids = created_by.values_list('user_id', flat=True)
-            medias = medias.filter(created_by__in=user_ids)
-
-    context.update({'medias': medias, 'form': form, 'archive':1})
+    medias = filter.qs
+    context.update({'medias': medias, 'filter': filter, 'archive':1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -151,38 +132,28 @@ def archive_view(request, context):
 @login_required
 def trash_view(request, context):
     current_user = request.user
-    form = PrincipalFilterForm(request.GET or None)
+
     
     # Check if the user is a superuser
     if current_user.is_superuser:
         medias = TrashMedia.objects.filter().order_by('created_at')
+        filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
     else:
         # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
                 medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('trashed_at')
+                filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
             else:
-                form = TeacherFilterForm(request.GET or None)
+                form = TeacherTrashFilterForm(request.GET or None)
                 medias = TrashMedia.objects.filter(created_by=current_user).order_by('created_at')
         else:
             medias = Media.objects.none()
 
-    # Apply filters from the form if it is valid
-    if form.is_valid():
-        title = form.cleaned_data.get('title')
-        dept = form.cleaned_data.get('dept')
-        created_by = form.cleaned_data.get('created_by')
-        
-        if title:
-            medias = medias.filter(title__icontains=title)
-        if dept:
-            medias = medias.filter(dept__in=dept)
-        if created_by:
-            user_ids = created_by.values_list('user_id', flat=True)
-            medias = medias.filter(created_by__in=user_ids)
-
-    context.update({'medias': medias, 'form': form, 'trash': 1})
+    
+    medias = filter.qs
+    context.update({'medias': medias, 'filter': filter, 'trash': 1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -266,8 +237,9 @@ def change_password(request, context):
             update_session_auth_hash(request, current_user)  # Keep the user logged in
             return redirect('profile')
         else:
-            form = PasswordChangeForm(current_user)
-            return render(request, 'Notification/change_password.html', {'context':context,'form':form})
+            if 'old_password' in form.errors:
+                form.add_error(None, "Incorrect old password. Please try again.")
+            
     else:
         form = PasswordChangeForm(current_user)
     return render(request, 'Notification/change_password.html', {'context':context,'form':form})
@@ -419,17 +391,30 @@ def restore(request, media_id):
 @add_user_context
 def teachers(request, context):
     teachers = Teacher.objects.all()
-    context.update({'teachers':teachers,'teacher':True})
+    filter = TeacherFilter(request.GET, queryset=teachers)
+    teachers = filter.qs
+    context.update({'teachers':teachers, 'filter':filter, 'teacher':True})
     return render(request, 'Notification/showusers.html', context)
 
 @login_required
 @superuser_or_teacher_required
 @add_user_context
 def students(request, context):
-    students = Student.objects.all()
-    context.update({'students':students, 'student':True})
+    students_queryset = Student.objects.all()
+    student_filter = StudentFilter(request.GET, queryset=students_queryset)
+    
+    # Pagination
+    paginator = Paginator(student_filter.qs, 10)  # Show 10 students per page
+    page_number = request.GET.get('page')
+    students_page = paginator.get_page(page_number)
+    
+    context.update({
+        'students': students_page,
+        'filter': student_filter,
+        'student': True,
+    })
+    
     return render(request, 'Notification/showusers.html', context)
-
 
 @login_required
 @superuser_or_teacher_required

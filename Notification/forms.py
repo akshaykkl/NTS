@@ -19,27 +19,8 @@ class TrashEditForm(forms.ModelForm):
         model = TrashMedia
         exclude = ['created_by', 'created_at', 'media_type','trashed_by', 'trashed_at']
 
-class PrincipalFilterForm(forms.Form):
-    title = forms.CharField(required=False)
-    dept = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size': 10})
-    )
-    uploaded_by = forms.ModelMultipleChoiceField(
-        queryset=Teacher.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size':10})
-    )
 
-class TeacherFilterForm(forms.Form):
-    title = forms.CharField(required=False)
-    dept = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size': 10})
-    )
-    
+
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 

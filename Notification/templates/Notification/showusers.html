@@ -1,42 +1,76 @@
 {% extends "base.html" %}
 {% load static %}
-{% block style %}{% endblock style %}
-{% block content %}
-    {% if teacher %}
-        <a href="{% url 'add_teacher' %}" class="add-button">Add Teacher</a>
-    {% elif student %}
-        <a href="{% url 'add_student' %}" class="add-button">Add Student</a>
-    {% endif %}
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-        {% if teachers %}
-            {% for item in teachers %}
+{% block content %}
+<div class="mt-3">
+    <h3>Students</h3>
+    
+    <form method="get" class="filter-form mb-3" id="filterForm">
+        {{ filter.form.as_p }}
+        <button type="submit" class="btn btn-primary me-2">Filter</button>
+        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
                 <tr>
-                    <td>{{ item.name }}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="{% url 'edit_teacher' item.id %}">Edit</a>
-                            <a href="{% url "delete_teacher" item.id %}" class="delete" onclick="return confirm('Are you sure you want to delete this teacher?');">Delete</a>
-                        </div>
-                    </td>
+                    <th>Name</th>
+                    <th>Admission No.</th>
+                    <th>Program</th>
+                    <th>Gender</th>
+                    <th>Year of Admission</th>
+                    <th>Department</th>
                 </tr>
-            {% endfor %}
-        {% elif students %}
-            {% for item in students %}
+            </thead>
+            <tbody>
+                {% for student in students %}
                 <tr>
-                    <td>{{ item.name }}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="{% url 'edit_student' item.id %}">Edit</a>
-                            <a href="{% url "delete_student" item.id %}" class="delete" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
-                        </div>
-                    </td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.admn_no }}</td>
+                    <td>{{ student.pgm.name }}</td>
+                    <td>{{ student.gender }}</td>
+                    <td>{{ student.year_of_admission }}</td>
+                    <td>{{ student.pgm.dept.name }}</td>
                 </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
             {% endfor %}
-        {% endif %}
-    </table>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+{% block script %}
+<script>
+    function clearForm() {
+        const form = document.getElementById('filterForm');
+        form.reset();
+        const url = new URL(window.location);
+        url.search = '';
+        window.history.pushState({}, '', url);
+        location.reload();
+    }
+</script>
+{% endblock script %}
 {% endblock content %}
