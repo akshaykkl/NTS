@@ -49,14 +49,20 @@ class Teacher(models.Model):
 
 class Media(models.Model):
     MEDIA_TYPES = (
-        ('archive', 'Image'),
-        ('upload', 'Video'),
+        ('archive', 'Archive'),
+        ('upload', 'Upload'),
     )
-
+    MEDIA_CATEGORY = (
+    ('examination','Examination'),
+    ('department', 'Department'),
+    ('notice','Notics'),
+    ('order','Order'),
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
     file = models.FileField(upload_to='media_files/',null=True, blank=True)
+    media_category = models.CharField(max_length=50, choices=MEDIA_CATEGORY, null=True)
     dept = models.ForeignKey(Department, on_delete=models.CASCADE)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
@@ -72,6 +78,7 @@ class Media(models.Model):
             description=self.description,
             media_type=self.media_type,
             file=self.file,
+            media_category=self.media_category,
             dept=self.dept,
             student=self.student,
             teacher=self.teacher,
@@ -87,10 +94,17 @@ class TrashMedia(models.Model):
         ('archive', 'Archive'),
         ('upload', 'Uploads'),
     )
+    MEDIA_CATEGORY = (
+    ('examination','Examination'),
+    ('department', 'Department'),
+    ('notice','Notics'),
+    ('order','Order'),
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
     file = models.FileField(upload_to='media_files/',null=True, blank=True)
+    media_category = models.CharField(max_length=50, choices=MEDIA_CATEGORY, null=True)
     dept = models.ForeignKey(Department, on_delete=models.CASCADE)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
@@ -108,6 +122,7 @@ class TrashMedia(models.Model):
             description=self.description,
             media_type=self.media_type,
             file=self.file,
+            media_category=self.media_category,
             dept=self.dept,
             student=self.student,
             teacher=self.teacher,

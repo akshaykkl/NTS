@@ -15,40 +15,70 @@
 <style>
     .action-column {
         white-space: nowrap;
+        width: 150px;
     }
     .table-responsive {
         margin: 20px auto;
         max-width: 95%;
     }
+    .table thead th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table td, .table th {
+        border: 1px solid #dee2e6;
+    }
+    .fixed-width {
+        width: 150px;
+    }
+    .bi.bi-check-circle-fill {
+        color: green;
+    } 
+    .bi.bi-x-circle-fill {
+        color: red;
+    } 
 </style>
 {% endblock style %}
 
 {% block content %}
 <div class="mt-3">
-    {% if uploads %}
-        <h3>Uploads</h3>
-    {% elif archive %}
-        <h3>Archive</h3>
-    {% elif trash %}
-        <h3>Trash</h3>
-    {% endif %}
-    
-    <form method="get" class="filter-form mb-3" id="filterForm">
-        {{ filter.form }}
-        <button type="submit" class="btn btn-primary me-2">Filter</button>
-        <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
-    </form>
+    <div class="mt-3 text-center">
+        {% if uploads %}
+            <h3 class="mb-4 display-4">Uploads</h3>
+        {% elif archive %}
+            <h3 class="mb-4 display-4">Archive</h3>
+        {% elif trash %}
+            <h3 class="mb-4 display-4">Trash</h3>
+        {% endif %}
+        <!-- Rest of your content -->
+    </div>
+    <p class="d-inline-flex gap-1">
+        <a class="btn btn-primary float-end" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+              Filter<i class="bi bi-filter"></i>
+        </a>
+    </p>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+            <form method="get" class="filter-form mb-3" id="filterForm">
+                {{ filter.form }}
+                <button type="submit" class="btn btn-primary me-2">Filter</button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
+            </form>
+        </div>
+    </div>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead class="thead-dark">
                 <tr>
-                    <th>Title</th>
+                    <th class="fixed-width">Title</th>
                     <th>Description</th>
-                    <th>Type</th>
-                    <th>Uploaded By</th>
-                    <th>Uploaded At</th>
-                    <th>File</th>
+                    <th class="fixed-width">Type</th>
+                    <th class="fixed-width">Uploaded By</th>
+                    <th class="fixed-width">Uploaded At</th>
+                    <th class="fixed-width">Student</th>
+                    <th class="fixed-width">Teacher</th>
+                    <th class="fixed-width">File</th>
                     <th class="action-column">Actions</th>
                 </tr>
             </thead>
@@ -60,26 +90,29 @@
                     <td>{{ item.media_type }}</td>
                     <td>{{ item.created_by }}</td>
                     <td>{{ item.created_at }}</td>
+                    <td>{% if item.student %} <i class="bi bi-check-circle-fill"></i> {% else %} <i class="bi bi-x-circle-fill"></i> {% endif %}</td>
+                    <td>{% if item.teacher %} <i class="bi bi-check-circle-fill"></i> {% else %} <i class="bi bi-x-circle-fill"></i> {% endif %}</td>
+                    
                     <td>
                         {% if item.file %}
-                            <a href="{{ item.file.url }}" target="_blank" class="btn btn-info btn-sm">View File</a>
+                            <a href="{{ item.file.url }}" target="_blank" class="btn btn-info btn-sm"><i class="bi bi-file-earmark-text"></i> View File</a>
                         {% else %}
                             No File Uploaded
                         {% endif %}
                     </td>
                     <td class="action-column">
                         {% if uploads %}
-                            <a href="{% url 'swap_type' item.id %}" class="btn btn-warning btn-sm">Archive</a>
-                            <a href="{% url 'edit_media' item.id %}" class="btn btn-primary btn-sm">Edit</a>
-                            <a href="{% url 'move_to_trash' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')">Delete</a>
+                            <a href="{% url 'swap_type' item.id %}" class="btn btn-warning btn-sm"><i class="bi bi-archive"></i> Archive</a>
+                            <a href="{% url 'edit_media' item.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                            <a href="{% url 'move_to_trash' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')"><i class="bi bi-trash"></i> Delete</a>
                         {% elif archive %}
-                            <a href="{% url 'swap_type' item.id %}" class="btn btn-success btn-sm">Upload</a>
-                            <a href="{% url 'edit_media' item.id %}" class="btn btn-primary btn-sm">Edit</a>
-                            <a href="{% url 'move_to_trash' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')">Delete</a>
+                            <a href="{% url 'swap_type' item.id %}" class="btn btn-success btn-sm"><i class="bi bi-cloud-upload"></i> Upload</a>
+                            <a href="{% url 'edit_media' item.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                            <a href="{% url 'move_to_trash' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')"><i class="bi bi-trash"></i> Delete</a>
                         {% elif trash %}
-                            <a href="{% url 'restore' item.id %}" class="btn btn-warning btn-sm">Restore</a>
-                            <a href="{% url 'edit_trash' item.id %}" class="btn btn-primary btn-sm">Edit</a>
-                            <a href="{% url 'delete_media' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')">Delete</a>
+                            <a href="{% url 'restore' item.id %}" class="btn btn-warning btn-sm" ><i class="bi bi-arrow-counterclockwise"></i> Restore</a>
+                            <a href="{% url 'edit_trash' item.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                            <a href="{% url 'delete_media' item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')"><i class="bi bi-trash"></i> Delete</a>
                         {% endif %}
                     </td>
                 </tr>

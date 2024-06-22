@@ -47,3 +47,4 @@ class ProgrammeForm(forms.ModelForm):
     class Meta:
         model = Programme
         fields = ['pgm_name', 'grad_level', 'dept_id']
+        

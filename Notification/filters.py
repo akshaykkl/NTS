@@ -4,7 +4,7 @@ from .models import *
 class PrincipalFilterForm(django_filters.FilterSet):
     class Meta:
         model = Media
-        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher']
+        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher','media_category']
 
 
     
@@ -13,20 +13,20 @@ class TeacherFilterForm(django_filters.FilterSet):
     
     class Meta:
         model = TrashMedia
-        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher']
+        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
 
 class PrincipalTrashFilterForm(django_filters.FilterSet):
    
 
     class Meta:
         model = Media
-        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher']
+        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher', 'media_category']
 
 class TeacherTrashFilterForm(django_filters.FilterSet):
   
     class Meta:
         model = TrashMedia
-        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher']
+        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
 
 class TeacherFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(
@@ -36,7 +36,7 @@ class TeacherFilter(django_filters.FilterSet):
     )
     class Meta:
         model = Teacher
-        fields = ['name', 'designation', 'dept']
+        fields = ['name','teacher_id', 'designation', 'dept', 'hod']
 
 
 class StudentFilter(django_filters.FilterSet):

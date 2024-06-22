@@ -67,63 +67,60 @@ def media_upload(request, context):
             form = MediaForm()
     context.update({'form':form})
     return  render(request, 'Notification/media_upload.html', context)
-    
+
 @login_required
 @superuser_or_teacher_required
 @add_user_context
 def uploads_view(request, context):
     current_user = request.user
-    # Check if the user is a superuser
     if current_user.is_superuser:
-        medias = Media.objects.filter(media_type="upload").order_by('created_at')
+        medias = Media.objects.filter(media_type="upload").order_by('-created_at')
         filter = PrincipalFilterForm(request.GET, queryset=medias)
     else:
-        # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
-                medias = Media.objects.filter(media_type="upload").order_by('created_at')
+                medias = Media.objects.filter(media_type="upload").order_by('-created_at')
                 filter = PrincipalFilterForm(request.GET, queryset=medias)
             else:
-                form = TeacherFilterForm(request.GET or None)
-                medias = Media.objects.filter(created_by=current_user, media_type="upload").order_by('created_at')
+                medias = Media.objects.filter(created_by=current_user, media_type="upload").order_by('-created_at')
                 filter = TeacherFilterForm(request.GET, queryset=medias)
         else:
             medias = Media.objects.none()
 
     medias = filter.qs
-    paginator = Paginator(medias, 5)
+    paginator = Paginator(medias, 5)  # Show 5 media items per page
     page = request.GET.get('page')
     medias_page = paginator.get_page(page)
     context.update({'medias': medias_page, 'filter': filter, 'uploads': 1})
     return render(request, 'Notification/view.html', context)
+
 
 @add_user_context
 @superuser_or_teacher_required
 @login_required
 def archive_view(request, context):
     current_user = request.user
-
-    
-    # Check if the user is a superuser
     if current_user.is_superuser:
-        medias = Media.objects.filter(media_type="archive").order_by('created_at')
+        medias = Media.objects.filter(media_type="archive").order_by('-created_at')
         filter = PrincipalFilterForm(request.GET, queryset=medias)
     else:
-        # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
-                medias = Media.objects.filter(media_type="archive").order_by('created_at')
+                medias = Media.objects.filter(media_type="archive").order_by('-created_at')
                 filter = PrincipalFilterForm(request.GET, queryset=medias)
             else:
-                form = TeacherFilterForm(request.GET or None)
-                medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('created_at')
+                medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('-created_at')
                 filter = TeacherFilterForm(request.GET, queryset=medias)
         else:
             medias = Media.objects.none()
+
     medias = filter.qs
-    context.update({'medias': medias, 'filter': filter, 'archive':1})
+    paginator = Paginator(medias, 5)  # Show 5 media items per page
+    page = request.GET.get('page')
+    medias_page = paginator.get_page(page)
+    context.update({'medias': medias_page, 'filter': filter, 'archive': 1})
     return render(request, 'Notification/view.html', context)
 
 
@@ -132,29 +129,28 @@ def archive_view(request, context):
 @login_required
 def trash_view(request, context):
     current_user = request.user
-
-    
-    # Check if the user is a superuser
     if current_user.is_superuser:
-        medias = TrashMedia.objects.filter().order_by('created_at')
+        medias = TrashMedia.objects.all().order_by('-created_at')
         filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
     else:
-        # Check if the user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             if teacher.designation == "principal":
-                medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('trashed_at')
+                medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('-trashed_at')
                 filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
             else:
-                form = TeacherTrashFilterForm(request.GET or None)
-                medias = TrashMedia.objects.filter(created_by=current_user).order_by('created_at')
+                medias = TrashMedia.objects.filter(created_by=current_user).order_by('-created_at')
+                filter = TeacherTrashFilterForm(request.GET, queryset=medias)
         else:
             medias = Media.objects.none()
 
-    
     medias = filter.qs
-    context.update({'medias': medias, 'filter': filter, 'trash': 1})
+    paginator = Paginator(medias, 5)  # Show 5 media items per page
+    page = request.GET.get('page')
+    medias_page = paginator.get_page(page)
+    context.update({'medias': medias_page, 'filter': filter, 'trash': 1})
     return render(request, 'Notification/view.html', context)
+
 
 
 
@@ -165,7 +161,7 @@ def feed(request, context):
 
     # Check if the current user is a superuser
     if current_user.is_superuser:
-        medias = Media.objects.filter(media_type='upload').order_by('created_at')
+        medias = Media.objects.filter(media_type='upload').order_by('-created_at')
         context.update({'medias': medias})
         return render(request, 'Notification/feed.html', context)
 
@@ -318,14 +314,6 @@ def edit_trash(request, context, media_id):
 
 @login_required
 @superuser_or_teacher_required
-@add_user_context
-def view_media(request, context, media_id):
-    media = Media.objects.get(id=media_id)
-    context.update({'media':media})
-    return render(request, 'Notification/view_media.html', context)
-
-@login_required
-@superuser_or_teacher_required
 def move_to_trash(request, media_id):
     if request.method == 'GET':
         try:
@@ -408,11 +396,7 @@ def students(request, context):
     page_number = request.GET.get('page')
     students_page = paginator.get_page(page_number)
     
-    context.update({
-        'students': students_page,
-        'filter': student_filter,
-        'student': True,
-    })
+    context.update({'students': students_page, 'filter': student_filter, 'student': True})
     
     return render(request, 'Notification/showusers.html', context)
 

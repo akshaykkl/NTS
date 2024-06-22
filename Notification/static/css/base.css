@@ -80,12 +80,20 @@
     padding: 20px 0;
     text-align: center;
     width: 100%;
-    position: sticky;
     bottom: 0;
+    flex-shrink: 0; /* Prevent footer from shrinking */
 }
 
 .footer p {
     color: #ffffff;
     margin: 0;
 }
+
+.position-sticky {
+    position: sticky;
+    bottom: 0;
+    background-color: #f8f9fa; /* Adjust background color as needed */
+    width: 100%;
+}
+
 
