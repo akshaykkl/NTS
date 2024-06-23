@@ -2,6 +2,21 @@ import django_filters
 from django import forms
 from .models import *
 class PrincipalFilterForm(django_filters.FilterSet):
+    title = django_filters.CharFilter(
+    label='Title',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    description = django_filters.CharFilter(
+    label='Description',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    created_by = django_filters.CharFilter(
+    label='Created by',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     class Meta:
         model = Media
         fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher','media_category']
@@ -10,20 +25,52 @@ class PrincipalFilterForm(django_filters.FilterSet):
     
     
 class TeacherFilterForm(django_filters.FilterSet):
-    
+    title = django_filters.CharFilter(
+    label='Title',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    description = django_filters.CharFilter(
+    label='Description',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     class Meta:
         model = TrashMedia
         fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
 
 class PrincipalTrashFilterForm(django_filters.FilterSet):
    
-
+    title = django_filters.CharFilter(
+    label='Title',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    description = django_filters.CharFilter(
+    label='Description',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    created_by = django_filters.CharFilter(
+    label='Created by',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     class Meta:
         model = Media
         fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher', 'media_category']
 
 class TeacherTrashFilterForm(django_filters.FilterSet):
-  
+    title = django_filters.CharFilter(
+    label='Title',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    description = django_filters.CharFilter(
+    label='Description',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     class Meta:
         model = TrashMedia
         fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
@@ -31,6 +78,11 @@ class TeacherTrashFilterForm(django_filters.FilterSet):
 class TeacherFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(
     label='Name',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    teacher_id = django_filters.CharFilter(
+    label='ID',
     lookup_expr='icontains',
     widget=forms.TextInput(attrs={'class': 'form-control'})
     )
@@ -47,15 +99,16 @@ class StudentFilter(django_filters.FilterSet):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
+    name = django_filters.CharFilter(
+        label='name',
+    lookup_expr='icontains',
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    admn_no = django_filters.NumberFilter(label='Admission No',
+    lookup_expr='icontains',
+    widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
     class Meta:
-        name = django_filters.CharFilter(
-        lookup_expr='icontains',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-        )
-        admn_no = django_filters.NumberFilter(
-        lookup_expr='icontains',
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-        )
         model = Student
         fields = ['name', 'admn_no', 'pgm', 'gender', 'year_of_admission', 'dept']
 

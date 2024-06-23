@@ -24,6 +24,11 @@
 {% endblock style %}
 
 {% block content %}
+<div class="mt-3">
+    <div class="mt-3 text-center">
+    <h3 class="mb-4 display-4">Profile</h3>
+    </div>
+</div>
 <div class="container mt-4">
     <div class="profile_container">
         {% if is_teacher %}
@@ -35,9 +40,8 @@
             <li><strong>Department:</strong> {{ teacher_details.dept.dept_name }}</li>
             <li><strong>HOD:</strong> {{ teacher_details.hod|yesno:"Yes,No" }}</li>
         </ul>
-        {% endif %}
         
-        {% if is_student %}
+        {% elif is_student %}
         <h3>Student Profile</h3>
         <ul>
             <li><strong>Name:</strong> {{ student_details.name }}</li>
@@ -47,11 +51,16 @@
             <li><strong>Gender:</strong> {{ student_details.get_gender_display }}</li>
             <li><strong>Year of Admission:</strong> {{ student_details.year_of_admission }}</li>
         </ul>
+        {% elif is_superuser %}
+        <ul>
+            <li><strong>Name:</strong> {{ admin_details.first_name }} {{admin_details.last_name}}</li>
+            <li><strong>Username:</strong> {{ admin_details.username }}</li>
+            <li><strong>Email:</strong> {{ admin_details.email }}</li>
+        </ul>
         {% endif %}
-    </div>
-    
-    <div class="mt-3">
-        <a href="{% url 'change_password' %}" class="btn btn-primary">Change Password</a>
+        <div class="mt-3 text-center">
+            <a href="{% url 'change_password' %}" class="btn btn-primary">Change Password</a>
+        </div>
     </div>
 </div>
 {% endblock %}

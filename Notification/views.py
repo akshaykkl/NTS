@@ -59,9 +59,12 @@ def media_upload(request, context):
             media.created_by = request.user
             if request.POST.get('action') == 'upload':
                 media.media_type = 'upload'
+                messages.success(request, 'Media Uploaded')
             elif request.POST.get('action') == 'archive':
                 media.media_type = 'archive'
+                messages.info(request, 'Media Archived')
             media.save()
+            
             return redirect('media_upload')
         else:
             form = MediaForm()
@@ -195,7 +198,11 @@ def feed(request, context):
 @login_required
 @add_user_context
 def profile(request, context):
-    current_user = request.user    
+    current_user = request.user 
+    if current_user.is_superuser:
+        admin =  User.objects.get(id=current_user.id)
+        print(admin)
+        context.update({'admin_details': admin})
     try:
         teacher = Teacher.objects.get(user=current_user)
         context.update({"teacher_details": teacher})
@@ -230,11 +237,13 @@ def change_password(request, context):
         form = PasswordChangeForm(current_user, request.POST)
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, current_user)  # Keep the user logged in
+            update_session_auth_hash(request, current_user)
+            messages.success(request, 'Password Changed')
             return redirect('profile')
         else:
             if 'old_password' in form.errors:
-                form.add_error(None, "Incorrect old password. Please try again.")
+                messages.error(request, form.errors)
+                
             
     else:
         form = PasswordChangeForm(current_user)
@@ -281,11 +290,13 @@ def edit_media(request, context, media_id):
             media1.created_by = media.created_by
             media1_created_at = media.created_at
             media1.save()
-            #messages.success(request, 'Media item updated successfully!')
+            messages.success(request, 'Media item updated successfully!')
             if media.media_type == 'upload':
                 return redirect('uploads_view')
             elif media.media_type == 'archive':
                 return redirect('archive_view')
+        else:
+            messages.error(request, 'Error updating media item!')
     if media.media_type == 'upload':
         context.update({'upload':True})
     elif media.media_type == 'archive':
@@ -306,8 +317,10 @@ def edit_trash(request, context, media_id):
             media1.created_by = media.created_by
             media1_created_at = media.created_at
             media1.save()
-            #messages.success(request, 'Media item updated successfully!')
+            messages.success(request, 'Trash item updated successfully!')
             return redirect('trash_view')
+        else:
+            messages.error(request, 'Error updating trash item!')
     context.update({'form':form, 'trash':True})
     return render(request, 'Notification/edit_media.html',context)
 
@@ -319,8 +332,9 @@ def move_to_trash(request, media_id):
         try:
             media = Media.objects.get(id=media_id)
             media.move_to_trash(request.user)
+            messages.success(request, 'Media item moved to trash successfully!')
         except:
-            pass
+            messages.error(request, 'Error moving media item to trash!')
         return redirect('uploads_view')
     else:
         return HttpResponse('Error Occured')
@@ -331,13 +345,16 @@ def delete_media(request, media_id):
     if request.method == 'GET':
         try:
             media = get_object_or_404(TrashMedia, id=media_id)
-            print('\n\n\n')
             media.delete()
+            messages.success(request, 'Media item deleted successfully!')
             return redirect('trash_view')
         except TrashMedia.DoesNotExist:
-            return HttpResponseBadRequest('Media not found.')
+            messages.error(request, 'Error deleting media item!')
+            return redirect('trash_view')
         except Exception as e:
-            return HttpResponseBadRequest(f'An error occurred: {e}')
+            messages.error(request, 'Error deleting media item!')
+            return redirect('trash_view')
+            
     else:
         return HttpResponseBadRequest('Invalid request method.')
 
@@ -350,14 +367,15 @@ def swap_type(request, media_id):
             if media.media_type == 'upload':
                 media.media_type = 'archive'
                 media.save()
+                messages.success(request, 'In Archive')
                 return redirect('uploads_view')
             elif media.media_type == 'archive':
                 media.media_type = 'upload'
                 media.save()
+                messages.success(request, 'In Uploads')
                 return redirect('archive_view')
-            return HttpResponse('Media type swapped successfully.')
         except Media.DoesNotExist:
-            return HttpResponseBadRequest('Media not found.')
+            return HttpResponseBadRequest('Media not found!')
         except Exception as e:
             return HttpResponseBadRequest(f'An error occurred: {e}')
     else:
@@ -370,8 +388,9 @@ def restore(request, media_id):
         try:
             media = TrashMedia.objects.get(id=media_id)
             media.restore()
+            messages.success(request, 'Item restored!')
         except:
-            pass
+            messages.error(request, 'Error restoring item!')
     return redirect('trash_view')
 
 @login_required
@@ -432,8 +451,8 @@ def manage_teacher(request, context, teacher_id=None):
             teacher = teacher_form.save(commit=False)
             teacher.user = user
             teacher.save()
-
-            return redirect('some_view_name')  # Redirect to a success page
+            messages.success(request, 'Updated')
+            return redirect('teachers')  # Redirect to a success page
     else:
         if teacher:
             user_form = UserForm(instance=user)
@@ -482,8 +501,8 @@ def manage_student(request, context, student_id=None):
             student = student_form.save(commit=False)
             student.user = user
             student.save()
-
-            return redirect('some_view_name')  # Redirect to a success page
+            messages.success(request, 'Updated')
+            return redirect('students')  # Redirect to a success page
     else:
         if student:
             user_form = UserForm(instance=user)
@@ -506,6 +525,7 @@ def delete_teacher(request, teacher_id):
     print(teacher)
     teacher.user.delete()  # This deletes the associated user as well.
     teacher.delete()
+    messages.success(request, 'Deleted')
     return redirect('teachers')  # Replace 'teacher_list' with your actual URL name for the list of teachers.
 
 @login_required
@@ -515,6 +535,7 @@ def delete_student(request, student_id):
     print(student)
     student.user.delete()  # This deletes the associated user as well.
     student.delete()
+    messages.success(request, 'Deleted')
     return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
 
 @login_required
@@ -547,7 +568,8 @@ def add_edit_department(request, context, department_id=None):
         form = DepartmentForm(request.POST, instance=department)
         if form.is_valid():
             form.save()
-            #return redirect('Notification/department_list')  # Adjust the redirect as needed
+            messages.success(request, 'Saved')
+            return redirect('departments')  
     else:
         form = DepartmentForm(instance=department)
     context.update({'form': form})
@@ -566,7 +588,8 @@ def add_edit_programme(request, context,programme_id=None):
         form = ProgrammeForm(request.POST, instance=programme)
         if form.is_valid():
             form.save()
-            #return redirect('Notification/programme_list')  # Adjust the redirect as needed
+            messages.success(request, 'Saved')
+            return redirect('programmes') 
     else:
         form = ProgrammeForm(instance=programme)
     context.update({'form':form})

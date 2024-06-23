@@ -7,7 +7,7 @@ from .models import *
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ['title', 'description', 'file', 'dept', 'student','teacher']
+        fields = ['title', 'description', 'file', 'dept', 'student','teacher', 'media_category']
 
 class MediaEditForm(forms.ModelForm):
     class Meta:

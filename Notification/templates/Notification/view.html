@@ -68,12 +68,12 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover table-striped align-middle">
             <thead class="thead-dark">
                 <tr>
                     <th class="fixed-width">Title</th>
-                    <th>Description</th>
-                    <th class="fixed-width">Type</th>
+                    <th class="fixed-width">Description</th>
+                    <th class="fixed-width">Category</th>
                     <th class="fixed-width">Uploaded By</th>
                     <th class="fixed-width">Uploaded At</th>
                     <th class="fixed-width">Student</th>
@@ -87,7 +87,7 @@
                 <tr>
                     <td>{{ item.title }}</td>
                     <td>{{ item.description }}</td>
-                    <td>{{ item.media_type }}</td>
+                    <td>{{ item.media_category }}</td>
                     <td>{{ item.created_by }}</td>
                     <td>{{ item.created_at }}</td>
                     <td>{% if item.student %} <i class="bi bi-check-circle-fill"></i> {% else %} <i class="bi bi-x-circle-fill"></i> {% endif %}</td>
@@ -97,7 +97,7 @@
                         {% if item.file %}
                             <a href="{{ item.file.url }}" target="_blank" class="btn btn-info btn-sm"><i class="bi bi-file-earmark-text"></i> View File</a>
                         {% else %}
-                            No File Uploaded
+                        <button type="button" class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle"></i> No File</button>
                         {% endif %}
                     </td>
                     <td class="action-column">

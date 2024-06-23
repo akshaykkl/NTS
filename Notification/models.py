@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 # Create your models here.
 
 class Department(models.Model):
@@ -55,7 +56,7 @@ class Media(models.Model):
     MEDIA_CATEGORY = (
     ('examination','Examination'),
     ('department', 'Department'),
-    ('notice','Notics'),
+    ('notice','Notice'),
     ('order','Order'),
     )
     title = models.CharField(max_length=100)
@@ -67,7 +68,7 @@ class Media(models.Model):
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.title
@@ -110,7 +111,7 @@ class TrashMedia(models.Model):
     teacher = models.BooleanField(default=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_trashmedia_set')
     created_at = models.DateTimeField()
-    trashed_at = models.DateTimeField(auto_now_add=True)
+    trashed_at = models.DateTimeField(default=timezone.now, editable=False)
     trashed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='trashed_trashmedia_set', null=True)
 
     def __str__(self):

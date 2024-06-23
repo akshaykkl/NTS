@@ -6,30 +6,45 @@
 {% endblock title %}
 
 {% block style %}
-    <style>
-        .action-buttons a {
-            margin-right: 5px;
-        }
-        .table-responsive {
-            margin: 20px auto;
-            max-width: 95%;
-        }
-    </style>
+<style>
+    .action-column {
+        white-space: nowrap;
+        width: 150px;
+    }
+    .table-responsive {
+        margin: 20px auto;
+        max-width: 95%;
+    }
+    .table thead th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table td, .table th {
+        border: 1px solid #dee2e6;
+    }
+    .fixed-width {
+        width: 150px;
+    }
+</style>
 {% endblock style %}
 
 {% block content %}
     <div class="container">
-        <h1 class="mt-3">Programme List</h1>
+        <div class="mt-3">
+            <div class="mt-3 text-center">
+            <h3 class="mb-4 display-4">Programmes</h3>
+            </div>
+        </div>
         <a href="{% url 'add_programme' %}" class="btn btn-primary mb-3">Add New Programme</a>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover table-striped align-middle">
                 <thead class="thead-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Grad Level</th>
-                        <th>Department</th>
-                        <th>Actions</th>
+                        <th class="fixed-width">ID</th>
+                        <th class="fixed-width">Name</th>
+                        <th class="fixed-width">Grad Level</th>
+                        <th class="fixed-width">Department</th>
+                        <th class="action-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

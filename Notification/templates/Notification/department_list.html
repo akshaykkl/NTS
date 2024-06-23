@@ -4,18 +4,43 @@
 {% block title %}
     <title>Department List</title>
 {% endblock title %}
-
+{% block style %}
+<style>
+    .action-column {
+        white-space: nowrap;
+        width: 150px;
+    }
+    .table-responsive {
+        margin: 20px auto;
+        max-width: 95%;
+    }
+    .table thead th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table td, .table th {
+        border: 1px solid #dee2e6;
+    }
+    .fixed-width {
+        width: 150px;
+    }
+</style>
+{% endblock style %}
 {% block content %}
     <div class="container">
-        <h1 class="mt-3">Department List</h1>
+        <div class="mt-3">
+            <div class="mt-3 text-center">
+            <h3 class="mb-4 display-4">Departments</h3>
+            </div>
+        </div>
         <a href="{% url 'add_department' %}" class="btn btn-primary mb-3">Add New Department</a>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Actions</th>
+                        <th class="fixed-width">ID</th>
+                        <th class="fixed-width">Name</th>
+                        <th class="action-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

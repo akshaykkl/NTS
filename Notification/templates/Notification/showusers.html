@@ -3,24 +3,39 @@
 
 {% block style %}
 <style>
+    .action-column {
+        white-space: nowrap;
+        width: 150px;
+    }
     .action-buttons a {
         margin-right: 5px;
     }
-    .table-container {
+    .table-responsive {
         margin: 20px auto;
         max-width: 95%;
     }
     .add-button {
         margin-bottom: 10px;
     }
-    .custom-thead {
-        background: linear-gradient(to right, #162AAE, #162AAE); /* Adjust gradient colors */
-        color: white; /* Text color for contrast */
+    .table thead th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table td, .table th {
+        border: 1px solid #dee2e6;
+    }
+    .fixed-width {
+        width: 150px;
     }
 </style>
 {% endblock style %}
 
 {% block content %}
+<div class="mt-3">
+    <div class="mt-3 text-center">
+    <h3 class="mb-4 display-4">{% if teacher %}Teachers{% elif student %}Students{% endif %}</h3>
+    </div>
+</div>
     {% if teacher %}
         <a href="{% url 'add_teacher' %}" class="btn btn-primary mb-3"><i class="bi bi-person-add"></i> Add Teacher</a>
         
@@ -43,12 +58,12 @@
             </div>
         </div>
             
-            <div class="table-container">
+            <div class="table-responsive">
                 <table class="table table-bordered table-hover table-striped align-middle" >
-                    <thead class="custom-thead">
+                    <thead class="thead-dark">
                         <tr>
-                            <th>Name</th>
-                            <th class="text-center">Actions</th>
+                            <th class="fixed-width">Name</th>
+                            <th class="action-column">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

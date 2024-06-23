@@ -43,6 +43,10 @@
                         <input type="checkbox" class="form-check-input" id="id_teacher" name="teacher">
                         <label class="form-check-label" for="id_teacher">Teacher</label>
                     </div>
+                    <div class="mb-3">
+                        <label for="id_dept" class="form-label">Category</label>
+                        {{ form.media_category }}
+                    </div>
                     <button type="submit" name="action" value="upload" class="btn btn-upload"><i class="btn bi-upload"></i>Upload</button>
                     <button type="submit" name="action" value="archive" class="btn btn-secondary w-100 mt-3"><i class="btn bi-archive"></i>Archive</button>
                 </form>
