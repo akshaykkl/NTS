@@ -174,7 +174,7 @@ def feed(request, context):
         dept = teacher.dept
         medias = Media.objects.filter(
         Q(teacher=True) &
-        (Q(dept=dept) | Q(dept__dept_name="All")) &
+        (Q(dept=dept) | Q(dept__isnull=True)) &
         Q(media_type='upload')).order_by('-created_at')[:20]
         context.update({'medias': medias})
         return render(request, 'Notification/feed.html', context)
@@ -185,9 +185,8 @@ def feed(request, context):
         dept = student.pgm.dept_id
         medias = Media.objects.filter(
         Q(student=True) &
-        (Q(dept=dept) | Q(dept__dept_name="All")) &
+        (Q(dept=dept) | Q(dept__isnull=True)) &
         Q(media_type='upload')).order_by('-created_at')[:20]
-        context.update({'medias': medias})
         context.update({'medias': medias})
     except Student.DoesNotExist:
         return render(request, 'Notification/error.html')
@@ -247,7 +246,8 @@ def change_password(request, context):
             
     else:
         form = PasswordChangeForm(current_user)
-    return render(request, 'Notification/change_password.html', {'context':context,'form':form})
+        context.update({'form':form})
+    return render(request, 'Notification/change_password.html', context)
 
 
 @login_required
@@ -284,7 +284,7 @@ def edit_media(request, context, media_id):
     media = Media.objects.get(id=media_id)
     form = MediaEditForm(instance=media)
     if request.method == 'POST':
-        form = MediaEditForm(request.POST, instance=media)
+        form = MediaEditForm(request.POST, request.FILES, instance=media)
         if form.is_valid():
             media1 = form.save(commit=False)
             media1.created_by = media.created_by
@@ -331,8 +331,14 @@ def move_to_trash(request, media_id):
     if request.method == 'GET':
         try:
             media = Media.objects.get(id=media_id)
-            media.move_to_trash(request.user)
-            messages.success(request, 'Media item moved to trash successfully!')
+            if media.media_type == 'upload':
+                media.move_to_trash(request.user)
+                messages.success(request, 'Media item moved to trash successfully!')
+                return redirect('uploads_view')
+            elif media.media_type == 'archive':
+                media.move_to_trash(request.user)
+                messages.success(request, 'Media item moved to trash successfully!')
+                return redirect('archive_view')
         except:
             messages.error(request, 'Error moving media item to trash!')
         return redirect('uploads_view')
