@@ -7,7 +7,7 @@ from .models import *
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ['title', 'description', 'file', 'dept', 'student','teacher']
+        fields = ['title', 'description', 'file', 'dept', 'student','teacher', 'media_category']
 
 class MediaEditForm(forms.ModelForm):
     class Meta:
@@ -19,27 +19,8 @@ class TrashEditForm(forms.ModelForm):
         model = TrashMedia
         exclude = ['created_by', 'created_at', 'media_type','trashed_by', 'trashed_at']
 
-class PrincipalFilterForm(forms.Form):
-    title = forms.CharField(required=False)
-    dept = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size': 10})
-    )
-    uploaded_by = forms.ModelMultipleChoiceField(
-        queryset=Teacher.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size':10})
-    )
 
-class TeacherFilterForm(forms.Form):
-    title = forms.CharField(required=False)
-    dept = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple(attrs={'size': 10})
-    )
-    
+
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -66,3 +47,4 @@ class ProgrammeForm(forms.ModelForm):
     class Meta:
         model = Programme
         fields = ['pgm_name', 'grad_level', 'dept_id']
+        

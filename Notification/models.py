@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 # Create your models here.
 
 class Department(models.Model):
@@ -18,7 +19,7 @@ class Student(models.Model):
     gender_choices = [('male', 'Male'),
                      ('female', 'Female'),
                      ('other', 'Other')]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     admn_no = models.IntegerField(unique=True)
     name = models.CharField(max_length=30)
     gender = models.CharField(max_length=10, choices=gender_choices)
@@ -49,19 +50,25 @@ class Teacher(models.Model):
 
 class Media(models.Model):
     MEDIA_TYPES = (
-        ('archive', 'Image'),
-        ('upload', 'Video'),
+        ('archive', 'Archive'),
+        ('upload', 'Upload'),
     )
-
+    MEDIA_CATEGORY = (
+    ('examination','Examination'),
+    ('department', 'Department'),
+    ('notice','Notice'),
+    ('order','Order'),
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
     file = models.FileField(upload_to='media_files/',null=True, blank=True)
-    dept = models.ForeignKey(Department, on_delete=models.CASCADE)
+    media_category = models.CharField(max_length=50, choices=MEDIA_CATEGORY,null=True, blank=True)
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE,null=True, blank=True)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.title
@@ -72,6 +79,7 @@ class Media(models.Model):
             description=self.description,
             media_type=self.media_type,
             file=self.file,
+            media_category=self.media_category,
             dept=self.dept,
             student=self.student,
             teacher=self.teacher,
@@ -87,16 +95,23 @@ class TrashMedia(models.Model):
         ('archive', 'Archive'),
         ('upload', 'Uploads'),
     )
+    MEDIA_CATEGORY = (
+    ('examination','Examination'),
+    ('department', 'Department'),
+    ('notice','Notics'),
+    ('order','Order'),
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=20, choices=MEDIA_TYPES, null=True, blank=True)
     file = models.FileField(upload_to='media_files/',null=True, blank=True)
-    dept = models.ForeignKey(Department, on_delete=models.CASCADE)
+    media_category = models.CharField(max_length=50, choices=MEDIA_CATEGORY,null=True, blank=True)
+    dept = models.ForeignKey(Department, on_delete=models.CASCADE,null=True, blank=True)
     student = models.BooleanField(default=False)
     teacher = models.BooleanField(default=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_trashmedia_set')
     created_at = models.DateTimeField()
-    trashed_at = models.DateTimeField(auto_now_add=True)
+    trashed_at = models.DateTimeField(default=timezone.now, editable=False)
     trashed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='trashed_trashmedia_set', null=True)
 
     def __str__(self):
@@ -108,6 +123,7 @@ class TrashMedia(models.Model):
             description=self.description,
             media_type=self.media_type,
             file=self.file,
+            media_category=self.media_category,
             dept=self.dept,
             student=self.student,
             teacher=self.teacher,
