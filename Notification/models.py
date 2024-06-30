@@ -32,11 +32,11 @@ class Student(models.Model):
 
 class Teacher(models.Model):
     design = [
-        ('assistantProfessor','Assistant Professor'),
+        ('AssistantProfessor','Assistant Professor'),
         ('associateProfessor','Associate Professor'),
         ('Professor','Professor'),
-        ('guestLecturer','Guest Lecturer'),
-        ('principal','Principal')]
+        ('GuestLecturer','Guest Lecturer'),
+        ('Principal','Principal')]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     teacher_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=50)
@@ -54,10 +54,10 @@ class Media(models.Model):
         ('upload', 'Upload'),
     )
     MEDIA_CATEGORY = (
-    ('examination','Examination'),
-    ('department', 'Department'),
-    ('notice','Notice'),
-    ('order','Order'),
+    ('Examination','Examination'),
+    ('Eepartment', 'Department'),
+    ('Notice','Notice'),
+    ('Order','Order'),
     )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -96,10 +96,10 @@ class TrashMedia(models.Model):
         ('upload', 'Uploads'),
     )
     MEDIA_CATEGORY = (
-    ('examination','Examination'),
-    ('department', 'Department'),
-    ('notice','Notics'),
-    ('order','Order'),
+    ('Examination','Examination'),
+    ('Department', 'Department'),
+    ('Notice','Notics'),
+    ('Order','Order'),
     )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)

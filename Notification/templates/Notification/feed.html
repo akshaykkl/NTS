@@ -4,24 +4,15 @@
 {% block content %}
 <div class="mt-3">
     <div class="mt-3 text-center">
-    <h3 class="mb-4 display-4">Feed</h3>
+        <h3 class="mb-4 display-4">Feed</h3>
     </div>
 </div>
 <div class="container mt-4">
-    <p class="d-inline-flex gap-1">
-        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-          Filter<i class="bi bi-filter"></i>
-        </a>
-        </p>
-      <div class="collapse" id="collapseExample">
-        <div class="card card-body">
-          Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
-        </div>
-      </div>
+    
     <div class="row">
         {% for item in medias %}
         <div class="col-md-6 mb-4">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">{{ item.title }}</h5>
                 </div>
@@ -33,9 +24,9 @@
                 </div>
                 <div class="card-footer">
                     {% if item.file %}
-                        <a href="{{ item.file.url }}" class="btn btn-primary" target="_blank">View File</a>
+                    <a href="{{ item.file.url }}" class="btn btn-primary" target="_blank">View File</a>
                     {% else %}
-                        <span class="text-muted">No File Uploaded</span>
+                    <span class="text-muted">No File Uploaded</span>
                     {% endif %}
                 </div>
             </div>

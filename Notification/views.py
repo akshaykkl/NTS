@@ -1,3 +1,4 @@
+#views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
@@ -46,7 +47,7 @@ def home(request, context):
         if current_user.is_authenticated:
             return render(request, 'base.html', context)
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
             
             
 @login_required
@@ -76,7 +77,7 @@ def media_upload(request, context):
         return  render(request, 'Notification/media_upload.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -107,8 +108,7 @@ def uploads_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 
 @add_user_context
 @superuser_or_teacher_required
@@ -139,7 +139,7 @@ def archive_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @add_user_context
@@ -171,7 +171,7 @@ def trash_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 
@@ -214,7 +214,7 @@ def feed(request, context):
         return render(request, 'Notification/feed.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+       return render(request, 'Notification/error.html', {'error':True})
         
     
 @login_required
@@ -241,7 +241,7 @@ def profile(request, context):
         return render(request, "Notification/profile.html", context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @add_user_context
@@ -278,7 +278,7 @@ def change_password(request, context):
         return render(request, 'Notification/change_password.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @login_required
@@ -310,8 +310,7 @@ def password_reset(request, context, *args, **kwargs):
         return render(request, 'Notification/password_reset.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 @login_required
 @superuser_or_teacher_required
 @add_user_context
@@ -341,7 +340,7 @@ def edit_media(request, context, media_id):
         return render(request, 'Notification/edit_media.html',context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -365,7 +364,7 @@ def edit_trash(request, context, media_id):
         return render(request, 'Notification/edit_media.html',context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @login_required
@@ -388,7 +387,7 @@ def move_to_trash(request, media_id):
             return redirect('uploads_view')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -411,8 +410,8 @@ def delete_media(request, media_id):
             return HttpResponseBadRequest('Invalid request method.')
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
+    
 @login_required
 @superuser_or_teacher_required
 def swap_type(request, media_id):
@@ -438,7 +437,7 @@ def swap_type(request, media_id):
             return HttpResponseBadRequest('Invalid request method.')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -454,7 +453,7 @@ def restore(request, media_id):
         return redirect('trash_view')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -468,7 +467,7 @@ def teachers(request, context):
         return render(request, 'Notification/showusers.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -488,7 +487,7 @@ def students(request, context):
         return render(request, 'Notification/showusers.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+       return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -541,7 +540,7 @@ def manage_teacher(request, context, teacher_id=None):
         return render(request, 'Notification/teacher.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @login_required
@@ -595,7 +594,7 @@ def manage_student(request, context, student_id=None):
         return render(request, 'Notification/student.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -623,7 +622,7 @@ def delete_student(request, student_id):
         return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -647,8 +646,7 @@ def programme_list(request, context):
         return render(request, 'Notification/programme_list.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -672,7 +670,7 @@ def add_edit_department(request, context, department_id=None):
         return render(request, 'Notification/department_form.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -696,4 +694,4 @@ def add_edit_programme(request, context,programme_id=None):
         return render(request, 'Notification/programme_form.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})

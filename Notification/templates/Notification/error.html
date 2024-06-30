@@ -99,6 +99,8 @@
   <h1>404</h1>
   {% if access %}
   <p>Unauthorized access</p>
+  {% elif error %}
+  <p>Unknown Error</p>
   {% else %}
   <p>Page not found</p>
   {% endif %}

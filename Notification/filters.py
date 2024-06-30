@@ -1,3 +1,4 @@
+#filers.py
 import django_filters
 from django import forms
 from .models import *
@@ -12,14 +13,10 @@ class PrincipalFilterForm(django_filters.FilterSet):
     lookup_expr='icontains',
     widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    created_by = django_filters.CharFilter(
-    label='Created by',
-    lookup_expr='icontains',
-    widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
+
     class Meta:
         model = Media
-        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher','media_category']
+        fields = ['title', 'description', 'dept', 'student', 'teacher','media_category']
 
 
     
@@ -37,7 +34,7 @@ class TeacherFilterForm(django_filters.FilterSet):
     )
     class Meta:
         model = TrashMedia
-        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
+        fields = ['title', 'description', 'dept', 'student', 'teacher', 'media_category']
 
 class PrincipalTrashFilterForm(django_filters.FilterSet):
    
@@ -51,14 +48,9 @@ class PrincipalTrashFilterForm(django_filters.FilterSet):
     lookup_expr='icontains',
     widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    created_by = django_filters.CharFilter(
-    label='Created by',
-    lookup_expr='icontains',
-    widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
     class Meta:
         model = Media
-        fields = ['title', 'description', 'created_at', 'created_by', 'dept', 'student', 'teacher', 'media_category']
+        fields = ['title', 'description', 'dept', 'student', 'teacher', 'media_category']
 
 class TeacherTrashFilterForm(django_filters.FilterSet):
     title = django_filters.CharFilter(
@@ -73,7 +65,7 @@ class TeacherTrashFilterForm(django_filters.FilterSet):
     )
     class Meta:
         model = TrashMedia
-        fields = ['title', 'description', 'created_at', 'dept', 'student', 'teacher', 'media_category']
+        fields = ['title', 'description', 'dept', 'student', 'teacher', 'media_category']
 
 class TeacherFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(
@@ -119,3 +111,4 @@ class StudentFilter(django_filters.FilterSet):
             'gender': forms.Select(attrs={'class': 'form-control'}),
             'year_of_admission': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
