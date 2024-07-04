@@ -1,6 +1,7 @@
+{% load custom_filters %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -176,12 +177,12 @@
             {% endif %}
         });
     </script>
-    
+    <script>
     {% block script %}
     {% endblock script %}
-    
+    </script>
     <div class="position-sticky">
-        <footer class="footer py-3 mt-auto">
+        <footer class="footer py-3 mt-auto ">
             <div class="container">
                 <p class="text-center mb-0">&copy; 2024 NTS. All rights reserved.</p>
             </div>

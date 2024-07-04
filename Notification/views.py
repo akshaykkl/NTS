@@ -54,30 +54,29 @@ def home(request, context):
 @superuser_or_teacher_required
 @add_user_context
 def media_upload(request, context):
-    try:
-        form = MediaForm()
-        current_user = request.user
-        if request.method == 'POST':
-            form = MediaForm(request.POST,request.FILES)
-            if form.is_valid():
-                media = form.save(commit=False)
-                media.created_by = request.user
-                if request.POST.get('action') == 'upload':
-                    media.media_type = 'upload'
-                    messages.success(request, 'Media Uploaded')
-                elif request.POST.get('action') == 'archive':
-                    media.media_type = 'archive'
-                    messages.info(request, 'Media Archived')
-                media.save()
-                
-                return redirect('media_upload')
-            else:
-                form = MediaForm()
-        context.update({'form':form})
-        return  render(request, 'Notification/media_upload.html', context)
+    form = MediaForm()
+    current_user = request.user
+    if request.method == 'POST':
+        form = MediaForm(request.POST,request.FILES)
+        if form.is_valid():
+            media = form.save(commit=False)
+            media.created_by = request.user
+            if request.POST.get('action') == 'upload':
+                media.media_type = 'upload'
+                messages.success(request, 'Media Uploaded')
+            elif request.POST.get('action') == 'archive':
+                media.media_type = 'archive'
+                messages.info(request, 'Media Archived')
+            media.save()
+            
+            return redirect('media_upload')
+        else:
+            form = MediaForm()
+    context.update({'form':form})
+    return  render(request, 'Notification/media_upload.html', context)
 
-    except Exception:
-        return render(request, 'Notification/error.html', {'error':True})
+    # except Exception:
+    #     return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -181,33 +180,33 @@ def trash_view(request, context):
 def feed(request, context):
     try:
         current_user = request.user
-
+        filterset = FeedFilter(request.GET, queryset=Media.objects.filter(media_type='upload').order_by('-created_at'))
         # Check if the current user is a superuser
         if current_user.is_superuser:
-            medias = Media.objects.filter(media_type='upload').order_by('-created_at')
-            context.update({'medias': medias})
+            medias = filterset.qs
+            context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
         # Check if the current user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             dept = teacher.dept
-            medias = Media.objects.filter(
+            medias = filterset.qs(
             Q(teacher=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
-            context.update({'medias': medias})
+            context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
         # Assume the current user is a student if not a teacher
         try:
             student = Student.objects.get(user=current_user)
             dept = student.pgm.dept_id
-            medias = Media.objects.filter(
+            medias = filterset.qs(
             Q(student=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
-            context.update({'medias': medias})
+            context.update({'medias': medias,'filter':filterset})
         except Student.DoesNotExist:
             return render(request, 'Notification/error.html')
 
@@ -275,6 +274,7 @@ def change_password(request, context):
         else:
             form = PasswordChangeForm(current_user)
             context.update({'form':form})
+            print(form)
         return render(request, 'Notification/change_password.html', context)
 
     except Exception:
@@ -507,7 +507,7 @@ def manage_teacher(request, context, teacher_id=None):
 
         if request.method == 'POST':
             if teacher:
-                user_form = UserForm(request.POST, instance=user)
+                user_form = UserEditForm(request.POST, instance=user)
                 teacher_form = TeacherForm(request.POST, instance=teacher)
             else:
                 user_form = UserForm(request.POST)
@@ -526,7 +526,7 @@ def manage_teacher(request, context, teacher_id=None):
                 return redirect('teachers')  # Redirect to a success page
         else:
             if teacher:
-                user_form = UserForm(instance=user)
+                user_form = UserEditForm(instance=user)
                 teacher_form = TeacherForm(instance=teacher)
             else:
                 user_form = UserForm()
@@ -561,7 +561,7 @@ def manage_student(request, context, student_id=None):
 
         if request.method == 'POST':
             if student:
-                user_form = UserForm(request.POST, instance=user)
+                user_form = UserEditForm(request.POST, instance=user)
                 student_form = StudentForm(request.POST, instance=student)
             else:
                 user_form = UserForm(request.POST)
@@ -580,7 +580,7 @@ def manage_student(request, context, student_id=None):
                 return redirect('students')  # Redirect to a success page
         else:
             if student:
-                user_form = UserForm(instance=user)
+                user_form = UserEditForm(instance=user)
                 student_form = StudentForm(instance=student)
             else:
                 user_form = UserForm()

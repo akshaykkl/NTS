@@ -28,6 +28,12 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password']
 
+class UserEditForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher

@@ -51,7 +51,7 @@
         <div class="collapse" id="collapseExample">
             <div class="card card-body">
                 <form method="get" class="filter-form mb-3" id="filterForm">
-                    {{ filter.form }}
+                    {{ filter.form.as_p }}
                     <button type="submit" class="btn btn-primary me-2">Filter</button>
                     <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
                 </form>

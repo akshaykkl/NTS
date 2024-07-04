@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load custom_filters %}
 {% block title %}
     <title>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Department</title>
 {% endblock title %}
@@ -12,8 +12,8 @@
         <form method="post" class="mt-4 p-4 border rounded bg-light shadow">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="{{ form.dept_name.id_for_label }}" class="form-label">{{ form.dept_name.label }}</label>
-                {{ form.dept_name }}
+                <label for="{{ form.dept_name.id_for_label }}" class="form-label">Department Name</label>
+                {{ form.dept_name|add_class:"form-control" }}
                 {% if form.dept_name.errors %}
                     <div class="invalid-feedback d-block">
                         {% for error in form.dept_name.errors %}
@@ -22,9 +22,15 @@
                     </div>
                 {% endif %}
             </div>
-            <button type="submit" class="btn btn-primary w-100">
-                {% if form.instance.pk %}Update{% else %}Add{% endif %}
-            </button>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary w-100">
+                    {% if form.instance.pk %}Update{% else %}Add{% endif %}
+                </button>
+
+                <button onclick="history.back(-1)" class="btn btn-secondary w-100">
+                    Go Back
+                </button>
+            </div>
         </form>
     </div>
 </div>

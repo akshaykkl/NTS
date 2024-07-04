@@ -112,3 +112,10 @@ class StudentFilter(django_filters.FilterSet):
             'year_of_admission': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
+class FeedFilter(django_filters.FilterSet):
+    title = django_filters.CharFilter(lookup_expr='icontains', label='Title')
+    media_category = django_filters.ChoiceFilter(choices=Media.MEDIA_CATEGORY, label='Media Category')
+
+    class Meta:
+        model = Media
+        fields = ['title', 'media_category']

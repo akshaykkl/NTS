@@ -32,7 +32,6 @@
 <div class="container mt-4">
     <div class="profile_container">
         {% if is_teacher %}
-        <h3>Teacher Profile</h3>
         <ul>
             <li><strong>Name:</strong> {{ teacher_details.name }}</li>
             <li><strong>Username:</strong> {{ user.username }}</li>
@@ -42,7 +41,6 @@
         </ul>
         
         {% elif is_student %}
-        <h3>Student Profile</h3>
         <ul>
             <li><strong>Name:</strong> {{ student_details.name }}</li>
             <li><strong>Username:</strong> {{ user.username }}</li>

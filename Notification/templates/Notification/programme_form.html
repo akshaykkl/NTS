@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 {% load static %}
 
 {% block title %}
@@ -9,45 +10,53 @@
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="col-md-6">
         <h1 class="mt-4 text-center">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Programme</h1>
-        <form method="post" class="mt-4 p-4 border rounded bg-light shadow">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="{{ form.pgm_name.id_for_label }}" class="form-label">{{ form.pgm_name.label }}</label>
-                {{ form.pgm_name }}
-                {% if form.pgm_name.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.pgm_name.errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+
+<form method="post" class="mt-4 p-4 border rounded bg-light shadow">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="{{ form.pgm_name.id_for_label }}" class="form-label">{{ form.pgm_name.label }}</label>
+        {{ form.pgm_name|add_class:"form-control" }}
+        {% if form.pgm_name.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.pgm_name.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
             </div>
-            <div class="mb-3">
-                <label for="{{ form.grad_level.id_for_label }}" class="form-label">{{ form.grad_level.label }}</label>
-                {{ form.grad_level }}
-                {% if form.grad_level.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.grad_level.errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.grad_level.id_for_label }}" class="form-label">{{ form.grad_level.label }}</label>
+        {{ form.grad_level|add_class:"form-control" }}
+        {% if form.grad_level.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.grad_level.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
             </div>
-            <div class="mb-3">
-                <label for="{{ form.dept_id.id_for_label }}" class="form-label">{{ form.dept_id.label }}</label>
-                {{ form.dept_id }}
-                {% if form.dept_id.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.dept_id.errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.dept_id.id_for_label }}" class="form-label">{{ form.dept_id.label }}</label>
+        {{ form.dept_id|add_class:"form-control" }}
+        {% if form.dept_id.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.dept_id.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
             </div>
-            <button type="submit" class="btn btn-primary w-100">
-                {% if form.instance.pk %}Update{% else %}Add{% endif %}
-            </button>
-        </form>
+        {% endif %}
+    </div>
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary w-100">
+            {% if form.instance.pk %}Update{% else %}Add{% endif %}
+        </button>
+
+        <button type="button" onclick="history.back(-1)" class="btn btn-secondary w-100">
+            Go Back
+        </button>
+    </div>
+</form>
+
     </div>
 </div>
 {% endblock content %}

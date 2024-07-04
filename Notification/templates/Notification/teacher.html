@@ -63,7 +63,13 @@
         <div class="form-group">
             {{ teacher_form.as_p }}
         </div>
-        <button type="submit" class="btn-submit">{% if teacher %}Update{% else %}Create{% endif %} Teacher</button>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary w-100">{% if teacher %}Update{% else %}Create{% endif %} Teacher</button>
+
+            <button onclick="history.back(-1)" class="btn btn-secondary w-100">
+                Go Back
+            </button>
+        </div>
     </form>
 </div>
 {% endblock %}
