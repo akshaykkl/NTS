@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+import os
 # Create your models here.
 
 class Department(models.Model):
@@ -38,7 +39,6 @@ class Teacher(models.Model):
         ('GuestLecturer','Guest Lecturer'),
         ('Principal','Principal')]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    teacher_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=50)
     designation = models.CharField(max_length=20, choices=design)
     dept = models.ForeignKey(Department, on_delete=models.CASCADE)
@@ -116,6 +116,13 @@ class TrashMedia(models.Model):
 
     def __str__(self):
         return self.title
+
+    def delete(self, *args, **kwargs):
+        # If a file exists, remove it from the filesystem
+        if self.file:
+            if os.path.isfile(self.file.path):
+                os.remove(self.file.path)
+        super(TrashMedia, self).delete(*args, **kwargs)
 
     def restore(self):
         Media.objects.create(

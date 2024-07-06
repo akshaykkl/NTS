@@ -25,6 +25,7 @@ def add_user_context(view_func):
             'is_superuser': request.user.is_superuser,
             'is_teacher': hasattr(request.user, 'teacher'),
             'is_student': hasattr(request.user, 'student'),
+            'is_principal':(hasattr(request.user, 'teacher') and request.user.teacher.designation=='Principal')
         }
         return view_func(request, context, *args, **kwargs)
     return _wrapped_view
@@ -45,7 +46,7 @@ def home(request, context):
     try:
         current_user = request.user
         if current_user.is_authenticated:
-            return render(request, 'base.html', context)
+            return redirect('feed')
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
             
@@ -90,7 +91,7 @@ def uploads_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
+                if teacher.designation == "Principal":
                     medias = Media.objects.filter(media_type="upload").order_by('-created_at')
                     filter = PrincipalFilterForm(request.GET, queryset=medias)
                 else:
@@ -121,11 +122,10 @@ def archive_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
-                    medias = Media.objects.filter(media_type="archive").order_by('-created_at')
+                medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('-created_at')
+                if teacher.designation == "Principal":
                     filter = PrincipalFilterForm(request.GET, queryset=medias)
                 else:
-                    medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('-created_at')
                     filter = TeacherFilterForm(request.GET, queryset=medias)
             else:
                 medias = Media.objects.none()
@@ -153,7 +153,7 @@ def trash_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
+                if teacher.designation == "Principal":
                     medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('-trashed_at')
                     filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
                 else:
@@ -191,7 +191,7 @@ def feed(request, context):
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             dept = teacher.dept
-            medias = filterset.qs(
+            medias = filterset.qs.filter(
             Q(teacher=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
@@ -202,7 +202,7 @@ def feed(request, context):
         try:
             student = Student.objects.get(user=current_user)
             dept = student.pgm.dept_id
-            medias = filterset.qs(
+            medias = filterset.qs.filter(
             Q(student=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
@@ -315,7 +315,7 @@ def password_reset(request, context, *args, **kwargs):
 @superuser_or_teacher_required
 @add_user_context
 def edit_media(request, context, media_id):
-    try:
+
         media = Media.objects.get(id=media_id)
         form = MediaEditForm(instance=media)
         if request.method == 'POST':
@@ -336,17 +336,16 @@ def edit_media(request, context, media_id):
             context.update({'upload':True})
         elif media.media_type == 'archive':
             context.update({'archive':True})
-        context.update({'form':form})
+        context.update({'form':form, 'media':media})
         return render(request, 'Notification/edit_media.html',context)
 
-    except Exception:
-        return render(request, 'Notification/error.html', {'error':True})
+
 
 @login_required
 @superuser_or_teacher_required
 @add_user_context
 def edit_trash(request, context, media_id):
-    try:
+
         media = TrashMedia.objects.get(id=media_id)
         form = TrashEditForm(instance=media)
         if request.method == 'POST':
@@ -360,11 +359,10 @@ def edit_trash(request, context, media_id):
                 return redirect('trash_view')
             else:
                 messages.error(request, 'Error updating trash item!')
-        context.update({'form':form, 'trash':True})
+        context.update({'form':form, 'trash':True,'media':media})
         return render(request, 'Notification/edit_media.html',context)
 
-    except Exception:
-        return render(request, 'Notification/error.html', {'error':True})
+
 
 
 @login_required

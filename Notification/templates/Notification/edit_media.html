@@ -21,7 +21,13 @@
                     {% endif %}
                 </div>
                 <div class="card-body p-4">
-                    <form action="{% url 'media_upload' %}" method="post" enctype="multipart/form-data">
+                    <form 
+                    {% if trash %}
+                    action="{% url 'edit_trash' media.id %}"
+                    {% else %}
+                    action="{% url 'edit_media' media.id %}"
+                    {% endif %}
+                     method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="id_title" class="form-label">Title</label>

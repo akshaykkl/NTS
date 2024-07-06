@@ -63,9 +63,8 @@
                     {% if teachers %}
                     <thead class="thead-dark">
                         <tr>
-                            <th class="fixed-width">Teacher ID</th>
-                            <th class="fixed-width">Username</th>
                             <th class="fixed-width">Name</th>
+                            <th class="fixed-width">Username</th>
                             <th class="fixed-width">Designation</th>
                             <th class="fixed-width">Department</th>
                             <th class="action-column">Actions</th>
@@ -74,9 +73,8 @@
                     {% for item in teachers %}
                     <tbody>
                         <tr>
-                            <td>{{ item.teacher_id }}</td>
-                            <td>{{ item.user }}</td>
                             <td>{{ item.name }}</td>
+                            <td>{{ item.user }}</td>
                             <td>{{ item.designation }}</td>
                             <td>{{ item.dept }}</td>
                             <td class="text-center">

@@ -37,7 +37,7 @@ class UserEditForm(forms.ModelForm):
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
-        fields = ['teacher_id', 'name', 'designation', 'dept', 'hod']
+        fields = ['name', 'designation', 'dept', 'hod']
 
 class StudentForm(forms.ModelForm):
     class Meta:
