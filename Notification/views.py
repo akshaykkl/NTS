@@ -345,7 +345,7 @@ def edit_media(request, context, media_id):
 @superuser_or_teacher_required
 @add_user_context
 def edit_trash(request, context, media_id):
-
+    try:
         media = TrashMedia.objects.get(id=media_id)
         form = TrashEditForm(instance=media)
         if request.method == 'POST':
@@ -361,7 +361,8 @@ def edit_trash(request, context, media_id):
                 messages.error(request, 'Error updating trash item!')
         context.update({'form':form, 'trash':True,'media':media})
         return render(request, 'Notification/edit_media.html',context)
-
+    except Exception:
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 
