@@ -10,7 +10,7 @@ class Department(models.Model):
         return self.dept_name
 
 class Programme(models.Model):
-    pgm_name = models.CharField(max_length=50)
+    pgm_name = models.CharField(max_length=100)
     grad_level = models.CharField(max_length=10)
     dept_id = models.ForeignKey(Department, on_delete=models.CASCADE, default=1)
     def __str__(self):

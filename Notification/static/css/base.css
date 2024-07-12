@@ -1,3 +1,22 @@
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+/* Flexbox container to make the footer stick to the bottom */
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #e2e2e2;
+}
+
+/* Main content should take up all available space */
+.main-content {
+    flex: 1;
+}
+
 .header {
     background: linear-gradient(to right, #859fce, #e968f5);
 }
@@ -82,13 +101,12 @@
     color: #fff;
 }
 
-.footer {
-    background-color: lightskyblue;
-    padding: 20px 0;
+footer {
+    background-color: rgb(170, 220, 251);
+    padding: 10px 0;
     text-align: center;
-    width: 100%;
-    bottom: 0;
-    position:static;
+    margin-bottom: 0;
+    
 }
 body {
     margin-bottom: 80px;

@@ -142,7 +142,7 @@
                 
             </div>
         </header>
-        <main class="container-fluid p-0">
+        <main class="container-fluid p-0" style="min-height:78vh;">
             {% block content %}
             {% endblock %}
         </main>
@@ -181,11 +181,9 @@
     {% block script %}
     {% endblock script %}
     </script>
-    <div class="position-sticky">
-        <footer class="footer py-3 mt-auto ">
-            <div class="container">
+    <div >
+        <footer>
                 <p class="text-center mb-0">&copy; 2024 NTS. All rights reserved.</p>
-            </div>
         </footer>
     </div>
 </body>
