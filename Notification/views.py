@@ -55,29 +55,30 @@ def home(request, context):
 @superuser_or_teacher_required
 @add_user_context
 def media_upload(request, context):
-    form = MediaForm()
-    current_user = request.user
-    if request.method == 'POST':
-        form = MediaForm(request.POST,request.FILES)
-        if form.is_valid():
-            media = form.save(commit=False)
-            media.created_by = request.user
-            if request.POST.get('action') == 'upload':
-                media.media_type = 'upload'
-                messages.success(request, 'Media Uploaded')
-            elif request.POST.get('action') == 'archive':
-                media.media_type = 'archive'
-                messages.info(request, 'Media Archived')
-            media.save()
-            
-            return redirect('media_upload')
-        else:
-            form = MediaForm()
-    context.update({'form':form})
-    return  render(request, 'Notification/media_upload.html', context)
+    try:
+        form = MediaForm()
+        current_user = request.user
+        if request.method == 'POST':
+            form = MediaForm(request.POST,request.FILES)
+            if form.is_valid():
+                media = form.save(commit=False)
+                media.created_by = request.user
+                if request.POST.get('action') == 'upload':
+                    media.media_type = 'upload'
+                    messages.success(request, 'Media Uploaded')
+                elif request.POST.get('action') == 'archive':
+                    media.media_type = 'archive'
+                    messages.info(request, 'Media Archived')
+                media.save()
+                
+                return redirect('media_upload')
+            else:
+                form = MediaForm()
+        context.update({'form':form})
+        return  render(request, 'Notification/media_upload.html', context)
 
-    # except Exception:
-    #     return render(request, 'Notification/error.html', {'error':True})
+    except Exception:
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -247,7 +248,6 @@ def profile(request, context):
 def change_password(request, context):
     try:
         current_user = request.user
-
         try:
             teacher = Teacher.objects.get(user=current_user)
             context.update({"teacher": 1, "teacher_details": teacher})
@@ -263,22 +263,21 @@ def change_password(request, context):
             form = PasswordChangeForm(current_user, request.POST)
             if form.is_valid():
                 user = form.save()
-                update_session_auth_hash(request, current_user)
-                messages.success(request, 'Password Changed')
+                update_session_auth_hash(request, current_user)  # Important to keep the user logged in
+                messages.success(request, 'Password successfully changed.')
                 return redirect('profile')
             else:
                 if 'old_password' in form.errors:
-                    messages.error(request, form.errors)
-                    
-                
-        else:
-            form = PasswordChangeForm(current_user)
-            context.update({'form':form})
-            print(form)
+                    messages.error(request, 'Your old password was entered incorrectly. Please enter it again.')
+                else:
+                    messages.error(request, 'Please correct the errors below.')              
+        form = PasswordChangeForm(current_user)
+        context.update({'form':form})
+        print(form)
         return render(request, 'Notification/change_password.html', context)
-
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
+
 
 
 @login_required
