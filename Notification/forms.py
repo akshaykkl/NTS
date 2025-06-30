@@ -28,10 +28,16 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password']
 
+class UserEditForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
-        fields = ['teacher_id', 'name', 'designation', 'dept', 'hod']
+        fields = ['name', 'designation', 'dept', 'hod']
 
 class StudentForm(forms.ModelForm):
     class Meta:

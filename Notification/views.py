@@ -1,3 +1,4 @@
+#views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
@@ -24,6 +25,7 @@ def add_user_context(view_func):
             'is_superuser': request.user.is_superuser,
             'is_teacher': hasattr(request.user, 'teacher'),
             'is_student': hasattr(request.user, 'student'),
+            'is_principal':(hasattr(request.user, 'teacher') and request.user.teacher.designation=='Principal')
         }
         return view_func(request, context, *args, **kwargs)
     return _wrapped_view
@@ -44,9 +46,9 @@ def home(request, context):
     try:
         current_user = request.user
         if current_user.is_authenticated:
-            return render(request, 'base.html', context)
+            return redirect('feed')
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
             
             
 @login_required
@@ -76,7 +78,7 @@ def media_upload(request, context):
         return  render(request, 'Notification/media_upload.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -90,7 +92,7 @@ def uploads_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
+                if teacher.designation == "Principal":
                     medias = Media.objects.filter(media_type="upload").order_by('-created_at')
                     filter = PrincipalFilterForm(request.GET, queryset=medias)
                 else:
@@ -107,8 +109,7 @@ def uploads_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 
 @add_user_context
 @superuser_or_teacher_required
@@ -122,11 +123,10 @@ def archive_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
-                    medias = Media.objects.filter(media_type="archive").order_by('-created_at')
+                medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('-created_at')
+                if teacher.designation == "Principal":
                     filter = PrincipalFilterForm(request.GET, queryset=medias)
                 else:
-                    medias = Media.objects.filter(created_by=current_user, media_type="archive").order_by('-created_at')
                     filter = TeacherFilterForm(request.GET, queryset=medias)
             else:
                 medias = Media.objects.none()
@@ -139,7 +139,7 @@ def archive_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @add_user_context
@@ -154,7 +154,7 @@ def trash_view(request, context):
         else:
             teacher = Teacher.objects.filter(user=current_user).first()
             if teacher:
-                if teacher.designation == "principal":
+                if teacher.designation == "Principal":
                     medias = TrashMedia.objects.filter(trashed_by=request.user).order_by('-trashed_at')
                     filter = PrincipalTrashFilterForm(request.GET, queryset=medias)
                 else:
@@ -171,7 +171,7 @@ def trash_view(request, context):
         return render(request, 'Notification/view.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 
@@ -181,40 +181,40 @@ def trash_view(request, context):
 def feed(request, context):
     try:
         current_user = request.user
-
+        filterset = FeedFilter(request.GET, queryset=Media.objects.filter(media_type='upload').order_by('-created_at'))
         # Check if the current user is a superuser
         if current_user.is_superuser:
-            medias = Media.objects.filter(media_type='upload').order_by('-created_at')
-            context.update({'medias': medias})
+            medias = filterset.qs
+            context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
         # Check if the current user is a teacher
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             dept = teacher.dept
-            medias = Media.objects.filter(
+            medias = filterset.qs.filter(
             Q(teacher=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
-            context.update({'medias': medias})
+            context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
         # Assume the current user is a student if not a teacher
         try:
             student = Student.objects.get(user=current_user)
             dept = student.pgm.dept_id
-            medias = Media.objects.filter(
+            medias = filterset.qs.filter(
             Q(student=True) &
             (Q(dept=dept) | Q(dept__isnull=True)) &
             Q(media_type='upload')).order_by('-created_at')[:20]
-            context.update({'medias': medias})
+            context.update({'medias': medias,'filter':filterset})
         except Student.DoesNotExist:
             return render(request, 'Notification/error.html')
 
         return render(request, 'Notification/feed.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+       return render(request, 'Notification/error.html', {'error':True})
         
     
 @login_required
@@ -241,14 +241,13 @@ def profile(request, context):
         return render(request, "Notification/profile.html", context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @add_user_context
 def change_password(request, context):
     try:
         current_user = request.user
-
         try:
             teacher = Teacher.objects.get(user=current_user)
             context.update({"teacher": 1, "teacher_details": teacher})
@@ -264,21 +263,21 @@ def change_password(request, context):
             form = PasswordChangeForm(current_user, request.POST)
             if form.is_valid():
                 user = form.save()
-                update_session_auth_hash(request, current_user)
-                messages.success(request, 'Password Changed')
+                update_session_auth_hash(request, current_user)  # Important to keep the user logged in
+                messages.success(request, 'Password successfully changed.')
                 return redirect('profile')
             else:
                 if 'old_password' in form.errors:
-                    messages.error(request, form.errors)
-                    
-                
-        else:
-            form = PasswordChangeForm(current_user)
-            context.update({'form':form})
+                    messages.error(request, 'Your old password was entered incorrectly. Please enter it again.')
+                else:
+                    messages.error(request, 'Please correct the errors below.')              
+        form = PasswordChangeForm(current_user)
+        context.update({'form':form})
+        print(form)
         return render(request, 'Notification/change_password.html', context)
-
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
+
 
 
 @login_required
@@ -310,13 +309,12 @@ def password_reset(request, context, *args, **kwargs):
         return render(request, 'Notification/password_reset.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 @login_required
 @superuser_or_teacher_required
 @add_user_context
 def edit_media(request, context, media_id):
-    try:
+
         media = Media.objects.get(id=media_id)
         form = MediaEditForm(instance=media)
         if request.method == 'POST':
@@ -337,11 +335,10 @@ def edit_media(request, context, media_id):
             context.update({'upload':True})
         elif media.media_type == 'archive':
             context.update({'archive':True})
-        context.update({'form':form})
+        context.update({'form':form, 'media':media})
         return render(request, 'Notification/edit_media.html',context)
 
-    except Exception:
-        return render(request, 'Notification/error.html')
+
 
 @login_required
 @superuser_or_teacher_required
@@ -361,11 +358,11 @@ def edit_trash(request, context, media_id):
                 return redirect('trash_view')
             else:
                 messages.error(request, 'Error updating trash item!')
-        context.update({'form':form, 'trash':True})
+        context.update({'form':form, 'trash':True,'media':media})
         return render(request, 'Notification/edit_media.html',context)
-
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
+
 
 
 @login_required
@@ -388,7 +385,7 @@ def move_to_trash(request, media_id):
             return redirect('uploads_view')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -411,8 +408,8 @@ def delete_media(request, media_id):
             return HttpResponseBadRequest('Invalid request method.')
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
+    
 @login_required
 @superuser_or_teacher_required
 def swap_type(request, media_id):
@@ -438,7 +435,7 @@ def swap_type(request, media_id):
             return HttpResponseBadRequest('Invalid request method.')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -454,7 +451,7 @@ def restore(request, media_id):
         return redirect('trash_view')
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -468,7 +465,7 @@ def teachers(request, context):
         return render(request, 'Notification/showusers.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -488,7 +485,7 @@ def students(request, context):
         return render(request, 'Notification/showusers.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+       return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -508,7 +505,7 @@ def manage_teacher(request, context, teacher_id=None):
 
         if request.method == 'POST':
             if teacher:
-                user_form = UserForm(request.POST, instance=user)
+                user_form = UserEditForm(request.POST, instance=user)
                 teacher_form = TeacherForm(request.POST, instance=teacher)
             else:
                 user_form = UserForm(request.POST)
@@ -527,7 +524,7 @@ def manage_teacher(request, context, teacher_id=None):
                 return redirect('teachers')  # Redirect to a success page
         else:
             if teacher:
-                user_form = UserForm(instance=user)
+                user_form = UserEditForm(instance=user)
                 teacher_form = TeacherForm(instance=teacher)
             else:
                 user_form = UserForm()
@@ -541,7 +538,7 @@ def manage_teacher(request, context, teacher_id=None):
         return render(request, 'Notification/teacher.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 
 @login_required
@@ -562,7 +559,7 @@ def manage_student(request, context, student_id=None):
 
         if request.method == 'POST':
             if student:
-                user_form = UserForm(request.POST, instance=user)
+                user_form = UserEditForm(request.POST, instance=user)
                 student_form = StudentForm(request.POST, instance=student)
             else:
                 user_form = UserForm(request.POST)
@@ -581,7 +578,7 @@ def manage_student(request, context, student_id=None):
                 return redirect('students')  # Redirect to a success page
         else:
             if student:
-                user_form = UserForm(instance=user)
+                user_form = UserEditForm(instance=user)
                 student_form = StudentForm(instance=student)
             else:
                 user_form = UserForm()
@@ -595,7 +592,7 @@ def manage_student(request, context, student_id=None):
         return render(request, 'Notification/student.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -623,7 +620,7 @@ def delete_student(request, student_id):
         return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -647,8 +644,7 @@ def programme_list(request, context):
         return render(request, 'Notification/programme_list.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
-
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -672,7 +668,7 @@ def add_edit_department(request, context, department_id=None):
         return render(request, 'Notification/department_form.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})
 
 @login_required
 @superuser_or_teacher_required
@@ -696,4 +692,4 @@ def add_edit_programme(request, context,programme_id=None):
         return render(request, 'Notification/programme_form.html', context)
 
     except Exception:
-        return render(request, 'Notification/error.html')
+        return render(request, 'Notification/error.html', {'error':True})

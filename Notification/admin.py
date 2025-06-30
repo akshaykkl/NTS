@@ -32,7 +32,7 @@ class StudentAdmin(admin.ModelAdmin):
 admin.site.register(Student, StudentAdmin)
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('user', 'teacher_id', 'name', 'designation', 'dept', 'hod')
+    list_display = ('user', 'name', 'designation', 'dept', 'hod')
     search_fields = ('name', 'designation', 'dept__dept_name')  
     list_filter = ('dept', 'hod','designation')  
 

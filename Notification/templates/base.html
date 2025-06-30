@@ -1,6 +1,7 @@
+{% load custom_filters %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,7 +31,7 @@
 <body>
     <div class="container-fluid p-0">
         <header class="d-flex flex-wrap align-items-center justify-content-between py-3 mb-4 border-bottom header">
-            <h1 id="brand" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none"> NTS</h1>
+            <h1 id="brand" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 ms-2 text-dark text-decoration-none"> NTS</h1>
             <nav class="navbar navbar-expand-md navbar-light">
                 <div class="container-fluid p-0">
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,11 +39,7 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link me-2" href="{% url 'profile' %}">
-                                    <i></i> Profile
-                                </a>
-                            </li>
+                            
                             <li class="nav-item">
                                 <a class="nav-link me-2" href="{% url 'feed' %}">
                                     <i ></i> Feed
@@ -122,17 +119,30 @@
             </nav>
             <div class="col-md-3 text-end">
                 {% if is_superuser %}
-                <a href="{% url 'admin:index' %}">
+                {% comment %} <a href="{% url 'admin:index' %}">
                     <button class="btn btn-outline-dark me-2">Administration</button>
-                </a>
+                </a> {% endcomment %}
                 {% endif %}
-                <form action="{% url 'logout' %}" method="POST" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-dark me-2">Logout</button>
-                </form>
+                <div class="profile-header dropdown">
+                    <button class="btn btn-outline-dark me-2" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle fs-2"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                
+                
+                
             </div>
         </header>
-        <main class="container-fluid p-0">
+        <main class="container-fluid p-0" style="min-height:78vh;">
             {% block content %}
             {% endblock %}
         </main>
@@ -167,15 +177,13 @@
             {% endif %}
         });
     </script>
-    
+    <script>
     {% block script %}
     {% endblock script %}
-    
-    <div class="position-sticky">
-        <footer class="footer py-3 mt-auto">
-            <div class="container">
+    </script>
+    <div >
+        <footer>
                 <p class="text-center mb-0">&copy; 2024 NTS. All rights reserved.</p>
-            </div>
         </footer>
     </div>
 </body>

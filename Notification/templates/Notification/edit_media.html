@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}
 {% block title %}
 <title>Edit</title>
 {% endblock title %}
@@ -7,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/edit.css' %}"> 
 {% endblock style %}
 {% block content %}
-    <div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="d-flex justify-content-center align-items-center vh-10">
         <div class="edit-card">
             <div class="card shadow-lg">
                 <div class="card-header">
@@ -20,35 +21,41 @@
                     {% endif %}
                 </div>
                 <div class="card-body p-4">
-                    <form action="" method="post" enctype="multipart/form-data">
+                    <form 
+                    {% if trash %}
+                    action="{% url 'edit_trash' media.id %}"
+                    {% else %}
+                    action="{% url 'edit_media' media.id %}"
+                    {% endif %}
+                     method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="id_title" class="form-label">Title</label>
-                            {{ form.title }}
+                            {{ form.title|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
                             <label for="id_description" class="form-label">Description</label>
-                            {{ form.description }}
+                            {{ form.description|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
                             <label for="id_file" class="form-label">File</label>
-                            {{ form.file }}
+                            {{ form.file|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
                             <label for="id_dept" class="form-label">Department</label>
-                            {{ form.dept }}
+                            {{ form.dept|add_class:"form-control" }}
                         </div>
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="id_student" name="student">
+                            {{ form.student|add_class:"form-check-input" }}
                             <label class="form-check-label" for="id_student">Student</label>
                         </div>
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="id_teacher" name="teacher">
+                            {{ form.teacher|add_class:"form-check-input" }}
                             <label class="form-check-label" for="id_teacher">Teacher</label>
                         </div>
                         <div class="mb-3">
-                            <label for="id_dept" class="form-label">Category</label>
-                            {{ form.media_category }}
+                            <label for="id_media_category" class="form-label">Category</label>
+                            {{ form.media_category|add_class:"form-select" }}
                         </div>
                         <button type="submit" class="btn btn-upload">Save Changes</button>
                     </form>

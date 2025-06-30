@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}
+
 
 {% block title %}
     <title>Upload</title>
@@ -10,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center vh-100">
+<div class="d-flex justify-content-center align-items-center vh-10">
     <div class="upload-card">
         <div class="card shadow-lg">
             <div class="card-header">
@@ -21,34 +23,40 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="id_title" class="form-label">Title</label>
-                        {{ form.title }}
+                        {{ form.title|add_class:"form-control" }}
                     </div>
                     <div class="mb-3">
                         <label for="id_description" class="form-label">Description</label>
-                        {{ form.description }}
+                        {{ form.description|add_class:"form-control" }}
                     </div>
                     <div class="mb-3">
                         <label for="id_file" class="form-label">File</label>
-                        {{ form.file }}
+                        {{ form.file|add_class:"form-control" }}
                     </div>
                     <div class="mb-3">
                         <label for="id_dept" class="form-label">Department</label>
-                        {{ form.dept }}
+                        {{ form.dept|add_class:"form-control" }}
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="id_student" name="student">
+                        {{ form.student|add_class:"form-check-input" }}
                         <label class="form-check-label" for="id_student">Student</label>
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="id_teacher" name="teacher">
+                        {{ form.teacher|add_class:"form-check-input" }}
                         <label class="form-check-label" for="id_teacher">Teacher</label>
                     </div>
                     <div class="mb-3">
-                        <label for="id_dept" class="form-label">Category</label>
-                        {{ form.media_category }}
+                        <label for="id_media_category" class="form-label">Category</label>
+                        {{ form.media_category|add_class:"form-select" }}
                     </div>
-                    <button type="submit" name="action" value="upload" class="btn btn-upload"><i class="btn bi-upload"></i>Upload</button>
-                    <button type="submit" name="action" value="archive" class="btn btn-secondary w-100 mt-3"><i class="btn bi-archive"></i>Archive</button>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" name="action" value="upload" class="btn btn-primary me-2">
+                            <i class="bi bi-upload"></i> Upload
+                        </button>
+                        <button type="submit" name="action" value="archive" class="btn btn-secondary">
+                            <i class="bi bi-archive"></i> Archive
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

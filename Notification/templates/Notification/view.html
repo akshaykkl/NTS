@@ -50,10 +50,9 @@
         {% elif trash %}
             <h3 class="mb-4 display-4">Trash</h3>
         {% endif %}
-        <!-- Rest of your content -->
     </div>
     <p class="d-inline-flex gap-1">
-        <a class="btn btn-primary float-end" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+        <a class="btn btn-primary ms-5 float-end" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
               Filter<i class="bi bi-filter"></i>
         </a>
     </p>
@@ -74,7 +73,9 @@
                     <th class="fixed-width">Title</th>
                     <th class="fixed-width">Description</th>
                     <th class="fixed-width">Category</th>
+                    {% if is_principal or is_superuser %}
                     <th class="fixed-width">Uploaded By</th>
+                    {% endif %}
                     <th class="fixed-width">Uploaded At</th>
                     <th class="fixed-width">Student</th>
                     <th class="fixed-width">Teacher</th>
@@ -88,7 +89,9 @@
                     <td>{{ item.title }}</td>
                     <td>{{ item.description }}</td>
                     <td>{{ item.media_category }}</td>
+                    {% if is_principal or is_superuser %}
                     <td>{{ item.created_by }}</td>
+                    {% endif %}
                     <td>{{ item.created_at }}</td>
                     <td>{% if item.student %} <i class="bi bi-check-circle-fill"></i> {% else %} <i class="bi bi-x-circle-fill"></i> {% endif %}</td>
                     <td>{% if item.teacher %} <i class="bi bi-check-circle-fill"></i> {% else %} <i class="bi bi-x-circle-fill"></i> {% endif %}</td>
