@@ -1,5 +1,5 @@
 # utils.py
-
+'''
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
@@ -25,3 +25,4 @@ def send_password_reset_email(request, email):
         return True  # Email sent successfully
     else:
         return False  # User with provided email does not exist
+'''
