@@ -1,4 +1,5 @@
 from functools import wraps
+from django.shortcuts import render
 
 def add_user_context(view_func):
     @wraps(view_func)
