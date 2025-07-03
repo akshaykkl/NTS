@@ -281,8 +281,8 @@ def password_reset(request, context, *args, **kwargs):
             form = PasswordResetForm(request.POST)
             if form.is_valid():
                 email = form.cleaned_data['email']
-                if send_password_reset_email(request, email):
-                    return render(request, 'Notification/password_reset_done.html')
+                '''if send_password_reset_email(request, email):
+                    return render(request, 'Notification/password_reset_done.html')'''
         else:
             form = PasswordResetForm()
             context.update({'form':form})
@@ -290,6 +290,7 @@ def password_reset(request, context, *args, **kwargs):
 
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
+    
 @login_required
 @superuser_or_teacher_required
 @add_user_context
