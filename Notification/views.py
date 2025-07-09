@@ -82,7 +82,7 @@ def uploads_view(request, context):
                 medias = Media.objects.none()
 
         medias = filter.qs
-        paginator = Paginator(medias, 5)  # Show 5 media items per page
+        paginator = Paginator(medias, 5)  
         page = request.GET.get('page')
         medias_page = paginator.get_page(page)
         context.update({'medias': medias_page, 'filter': filter, 'uploads': 1})
@@ -112,7 +112,7 @@ def archive_view(request, context):
                 medias = Media.objects.none()
 
         medias = filter.qs
-        paginator = Paginator(medias, 5)  # Show 5 media items per page
+        paginator = Paginator(medias, 5)  
         page = request.GET.get('page')
         medias_page = paginator.get_page(page)
         context.update({'medias': medias_page, 'filter': filter, 'archive': 1})
@@ -162,13 +162,13 @@ def feed(request, context):
     try:
         current_user = request.user
         filterset = FeedFilter(request.GET, queryset=Media.objects.filter(media_type='upload').order_by('-created_at'))
-        # Check if the current user is a superuser
+        
         if current_user.is_superuser:
             medias = filterset.qs
             context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
-        # Check if the current user is a teacher
+
         teacher = Teacher.objects.filter(user=current_user).first()
         if teacher:
             dept = teacher.dept
@@ -179,7 +179,7 @@ def feed(request, context):
             context.update({'medias': medias,'filter':filterset})
             return render(request, 'Notification/feed.html', context)
 
-        # Assume the current user is a student if not a teacher
+        
         try:
             student = Student.objects.get(user=current_user)
             dept = student.pgm.dept_id
@@ -243,7 +243,7 @@ def change_password(request, context):
             form = PasswordChangeForm(current_user, request.POST)
             if form.is_valid():
                 user = form.save()
-                update_session_auth_hash(request, current_user)  # Important to keep the user logged in
+                update_session_auth_hash(request, current_user)  
                 messages.success(request, 'Password successfully changed.')
                 return redirect('profile')
             else:
@@ -457,7 +457,7 @@ def students(request, context):
         student_filter = StudentFilter(request.GET, queryset=students_queryset)
         
         # Pagination
-        paginator = Paginator(student_filter.qs, 10)  # Show 10 students per page
+        paginator = Paginator(student_filter.qs, 10)  
         page_number = request.GET.get('page')
         students_page = paginator.get_page(page_number)
         
@@ -502,7 +502,7 @@ def manage_teacher(request, context, teacher_id=None):
                 teacher.user = user
                 teacher.save()
                 messages.success(request, 'Updated')
-                return redirect('teachers')  # Redirect to a success page
+                return redirect('teachers')  
         else:
             if teacher:
                 user_form = UserEditForm(instance=user)
@@ -556,7 +556,7 @@ def manage_student(request, context, student_id=None):
                 student.user = user
                 student.save()
                 messages.success(request, 'Updated')
-                return redirect('students')  # Redirect to a success page
+                return redirect('students')  
         else:
             if student:
                 user_form = UserEditForm(instance=user)
@@ -581,10 +581,10 @@ def delete_teacher(request, teacher_id):
     try:
         teacher = get_object_or_404(Teacher, id=teacher_id)
         print(teacher)
-        teacher.user.delete()  # This deletes the associated user as well.
+        teacher.user.delete() 
         teacher.delete()
         messages.success(request, 'Deleted')
-        return redirect('teachers')  # Replace 'teacher_list' with your actual URL name for the list of teachers.
+        return redirect('teachers')  
 
     except Exception:
         return render(request, 'Notification/error.html')
@@ -595,10 +595,10 @@ def delete_student(request, student_id):
     try:
         student = get_object_or_404(Student, id=student_id)
         print(student)
-        student.user.delete()  # This deletes the associated user as well.
+        student.user.delete()  
         student.delete()
         messages.success(request, 'Deleted')
-        return redirect('students')  # Replace 'student_list' with your actual URL name for the list of students.
+        return redirect('students') 
 
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
