@@ -29,7 +29,9 @@ def home(request, context):
             return redirect('feed')
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
-            
+
+
+
             
 @login_required
 @superuser_or_teacher_required
@@ -671,6 +673,20 @@ def add_edit_programme(request, context,programme_id=None):
             form = ProgrammeForm(instance=programme)
         context.update({'form':form})
         return render(request, 'Notification/programme_form.html', context)
+
+    except Exception:
+        return render(request, 'Notification/error.html', {'error':True})
+    
+
+@login_required
+@superuser_or_teacher_required
+@add_user_context
+def delete_department(request, department_id):
+    try:
+        department = get_object_or_404(Department, id=department_id)
+        department.delete()
+        messages.success(request, 'Deleted')
+        return redirect('departments')  
 
     except Exception:
         return render(request, 'Notification/error.html', {'error':True})
